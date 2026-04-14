@@ -173,29 +173,28 @@ Use as reference when the customer has no established pattern:
 
 This agent is connected to the Fae knowledge graph via Remindr MCP. The knowledge graph is a shared, persistent memory across all agents and sessions working on this project.
 
+> For full tool reference with all parameters, see the greenfield CLAUDE.md. This section highlights the session flow and existing-codebase-specific guidance.
+
 ### Session Flow
 
-1. **Session start** → `briefing()` — Orient yourself. Check project state and recent decisions.
-2. **Before implementation** → `context(query)` — Search for relevant knowledge, existing patterns, known gotchas.
-3. **After decisions** → `decide(decision, rationale)` — Document every decision with rationale. Critical in existing codebases where decisions about following vs. deviating from customer patterns must be traceable.
-4. **New insights** → `remember(type, title, content)` — Save codebase patterns, gotchas, and customer-specific conventions.
-5. **Blockers** → `block(description)` / `resolve(nodeId, resolution)` — Track immediately.
-6. **Communication** → `send(to, subject, content)` / `inbox()` — Coordinate with other agents.
-7. **Session end** → `remember("state", ...)` — Persist session state.
-
-### Tools
-
-**Read:** `context(query)`, `briefing()`, `status()`, `why(query)`, `get(nodeId)`, `list(type?, status?)`, `blockers()`, `inbox()`
-
-**Write:** `decide(decision, rationale)`, `remember(type, title, content)`, `block(description)`, `resolve(nodeId, resolution)`, `forget(nodeId)`, `link(from, to, type)`, `send(to, subject, content)`, `reply(threadId, content)`
+1. **Session start** → `briefing(sinceLastSession: true)` — Orient yourself. Check recent decisions, active blockers, unread messages.
+2. **Check messages** → `inbox()` then `read_thread(threadId)` — Check for updates from other agents.
+3. **Before implementation** → `context(query)` — Search for existing knowledge, codebase patterns, known gotchas.
+4. **After decisions** → `decide(decision, rationale, alternatives)` — Document every decision with rationale and alternatives. Critical in existing codebases where decisions about following vs. deviating from customer patterns must be traceable. Remindr auto-detects contradictions.
+5. **Codebase patterns** → `remember("preference", title, content)` — Save customer-specific conventions, patterns, and deviations from Wizardworks defaults.
+6. **Gotchas** → `remember("gotcha", title, content)` — Save non-obvious behavior, quirks, and workarounds.
+7. **Blockers** → `block(description, urgency)` / `resolve(nodeId, resolution)` — Track immediately with urgency level.
+8. **Communication** → `send(to, subject, content)` / `inbox()` — Coordinate with other agents. Use `"*"` for broadcast.
+9. **Session end** → `remember("state", title, content)` — Persist session state.
 
 ### Rules
 
-- **ALWAYS** use `decide()` for decisions — especially when choosing to follow or deviate from customer patterns.
-- **ALWAYS** run `briefing()` at session start.
+- **ALWAYS** use `decide()` (not `remember`) for decisions — especially when choosing to follow or deviate from customer patterns. Include `alternatives` and `rationale`.
+- **ALWAYS** run `briefing(sinceLastSession: true)` at session start.
 - **ALWAYS** save customer-specific patterns with `remember("preference", ...)` when discovering codebase conventions.
 - **ALWAYS** document gotchas with `remember("gotcha", ...)`.
 - **ALWAYS** check `inbox()` at session start.
+- **PREFER** `propose(content)` when observing something but unsure how to classify it — let Sage decide.
 
 ---
 

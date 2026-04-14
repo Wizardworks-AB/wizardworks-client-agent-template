@@ -237,55 +237,78 @@ If Superpowers is installed, it provides additional workflows (brainstorming, ex
 
 ## Fae Knowledge Graph (Remindr MCP)
 
-This agent is connected to the Fae knowledge graph via Remindr MCP. The knowledge graph is a shared, persistent memory across all agents and sessions working on this project.
+This agent is connected to the Fae knowledge graph via Remindr MCP. The knowledge graph is a shared, persistent memory across all agents and sessions working on this project. All tools below are MCP tools provided by the Remindr server.
 
 ### Session Flow
 
 Follow this flow in every session:
 
-1. **Session start** → `briefing()` — Orient yourself. Get a summary of project state, recent decisions, and active blockers.
-2. **Before implementation** → `context(query)` — Search for relevant knowledge. Check if similar decisions have been made, known gotchas exist, or related work is in progress.
-3. **After decisions** → `decide(decision, rationale)` — Document every architecture or design decision with clear rationale. This enables traceability and contradiction detection.
-4. **New insights** → `remember(type, title, content)` — Save facts, gotchas, preferences, and entity knowledge as you discover them.
-5. **Blockers** → `block(description)` / `resolve(nodeId, resolution)` — Track blockers immediately. Don't wait until session end.
-6. **Communication** → `send(to, subject, content)` / `inbox()` — Communicate with other agents. Check inbox regularly.
-7. **Session end** → `remember("state", ...)` — Persist session state so the next session can pick up where you left off.
+1. **Session start** → `briefing(sinceLastSession: true)` — Orient yourself. See what happened since your last session: recent decisions, new blockers, unread messages.
+2. **Check messages** → `inbox()` — Check for messages from other agents or team members. Use `read_thread(threadId)` for full content.
+3. **Before implementation** → `context(query)` — Semantic search for relevant knowledge. Check if similar decisions exist, known gotchas apply, or related work is in progress.
+4. **After decisions** → `decide(decision, rationale)` — Document every architecture or design decision. Include `alternatives` considered and `supersedes` if replacing a previous decision. Remindr automatically detects contradictions with existing decisions.
+5. **New insights** → `remember(type, title, content)` — Save facts, gotchas, preferences, and entity knowledge. Remindr auto-deduplicates and auto-links to related nodes.
+6. **Blockers** → `block(description, urgency)` / `resolve(nodeId, resolution)` — Track blockers immediately with urgency level.
+7. **Communication** → `send(to, subject, content)` — Communicate with other agents. Use `"*"` for broadcast.
+8. **Session end** → `remember("state", title, content)` — Persist session state so the next session can pick up where you left off.
 
 ### Read Tools
 
-| Tool | Purpose | When to use |
-|------|---------|-------------|
-| `context(query)` | Semantic search in the knowledge graph | Before starting work on any topic — check what's known |
-| `briefing()` | Project summary and orientation | Start of every session |
-| `status()` | Current project state | When you need a quick overview of active work |
-| `why(query)` | Trace decision chains | When you need to understand why something was decided |
-| `get(nodeId)` | Fetch full node content | When you have a specific node ID from search results |
-| `list(type?, status?)` | List nodes with filters | When browsing decisions, blockers, or facts |
-| `blockers()` | List all active blockers | Before planning work — check what's blocked |
-| `inbox()` | Check unread messages | Regularly during session, especially at start |
+| Tool | Parameters | Purpose |
+|------|-----------|---------|
+| `briefing` | `project?`, `recentHours?` (default 24), `sinceLastSession?` (default false), `timezone?` | Project summary — active projects, open blockers, recent decisions, stale items |
+| `context` | `query`, `project?` | Semantic search in the knowledge graph for relevant knowledge |
+| `status` | `project?` | Current project state — active decisions, open blockers, recent changes |
+| `why` | `query`, `project?` | Trace decision chains — follows led_to, supersedes, contradicts edges |
+| `get` | `nodeId` | Fetch full untruncated node content (use when context() truncates) |
+| `list` | `type?`, `status?`, `project?` | List nodes with filters. Types: `decision, fact, blocker, gotcha, preference, state, entity, plan`. Statuses: `active, resolved, superseded, stale` |
+| `blockers` | `project?` | List all active blockers. Omit project to see across all projects |
+| `inbox` | `includeRead?` (default false) | Check messages. Default shows only unread threads |
+| `read_thread` | `threadId` | Read full thread content — all messages, untruncated. Auto-marks as read |
+| `list_agents` | *(none)* | List all known agents in the system |
 
 ### Write Tools
 
-| Tool | Purpose | When to use |
-|------|---------|-------------|
-| `decide(decision, rationale)` | Record a decision with reasoning | Every architecture/design decision — mandatory |
-| `remember(type, title, content)` | Store knowledge (fact, gotcha, plan, preference, entity) | When discovering reusable insights |
-| `block(description)` | Register a blocker | Immediately when encountering a blocker |
-| `resolve(nodeId, resolution)` | Resolve a blocker | When a blocker is cleared |
-| `forget(nodeId)` | Mark knowledge as stale | When information is no longer accurate |
-| `link(from, to, type)` | Create typed edges between nodes | When connecting related knowledge |
-| `send(to, subject, content)` | Send message to another agent | When coordination is needed |
-| `reply(threadId, content)` | Reply in a message thread | When responding to incoming messages |
+| Tool | Parameters | Purpose |
+|------|-----------|---------|
+| `decide` | `decision`, `rationale`, `project?`, `alternatives?` (string[]), `supersedes?` (nodeId), `relatedTo?` (nodeId[]) | Record a decision with rationale. Auto-detects contradictions with existing decisions and creates contradiction nodes. Use `supersedes` when replacing a previous decision. |
+| `remember` | `type`, `title`, `content`, `project?`, `relatedTo?` (nodeId[]) | Store knowledge. Types: `fact, gotcha, preference, state, entity, plan`. Do NOT use for decisions (use `decide`) or blockers (use `block`). Auto-deduplicates via embedding similarity. |
+| `block` | `description`, `project?`, `urgency?` (`low/medium/high/critical`), `relatedTo?` (nodeId[]) | Register a blocker. Urgency defaults to medium if omitted. |
+| `resolve` | `nodeId`, `resolution` | Resolve a blocker. Automatically creates a linked fact node with the resolution. |
+| `forget` | `nodeId`, `reason?` | Mark knowledge as stale. If forgetting a decision, also marks linked contradictions as stale. |
+| `link` | `fromNodeId`, `toNodeId`, `type` | Create typed edge. Types: `led_to, contradicts, depends_on, supersedes, related_to` |
+| `send` | `to`, `subject`, `content`, `relatedTo?` (nodeId) | Send message to another agent. Use `"*"` for broadcast. |
+| `reply` | `threadId`, `content`, `relatedTo?` (nodeId) | Reply in a message thread |
+| `mark_read` | `threadId` | Mark a thread as read without reading full content |
+| `propose` | `content`, `project?`, `task?`, `repo?`, `branch?`, `relatedTo?` (nodeId) | Submit an observation without classifying it. Sage (the orchestrator agent) decides if and how to add it to the graph. Use this when you observe something noteworthy but aren't sure how to classify it, or when you only have Propose permission. |
+
+### Project Management
+
+| Tool | Parameters | Purpose |
+|------|-----------|---------|
+| `project` | `name` | Create or get a project. If the project doesn't exist, creates it with base entity nodes. |
+| `audit` | `project?`, `agent?`, `type?`, `status?`, `from?`, `to?`, `format?` (`table/csv`), `limit?`, `offset?` | Full audit log — who created/updated each node, when, type, status. For traceability and compliance. |
+
+### Automatic Intelligence
+
+Remindr does several things automatically — you don't need to trigger these:
+
+- **Deduplication** — Before creating any node, Remindr checks embedding similarity. Duplicates are rejected with a message showing the existing node.
+- **Contradiction detection** — When you use `decide()`, Remindr compares against existing decisions. If a conflict is detected (similarity 0.78-0.84), a `contradiction` node is created automatically with edges to both decisions.
+- **Auto-linking** — New nodes are automatically linked to semantically related existing nodes via typed edges.
+- **Confidence decay** — Old, unreferenced nodes gradually lose confidence over time.
 
 ### Rules
 
-- **ALWAYS** use `decide()` when making architecture or design decisions. No exceptions.
-- **ALWAYS** run `briefing()` at the start of every session before doing any work.
-- **ALWAYS** save gotchas with `remember("gotcha", ...)` when encountering surprises or non-obvious behavior.
-- **ALWAYS** document blockers immediately with `block()` — don't wait.
+- **ALWAYS** use `decide()` for architecture and design decisions — never `remember("decision", ...)`. The `decide` tool has contradiction detection that `remember` does not.
+- **ALWAYS** run `briefing(sinceLastSession: true)` at the start of every session before doing any work.
+- **ALWAYS** save gotchas with `remember("gotcha", title, content)` when encountering surprises or non-obvious behavior.
+- **ALWAYS** document blockers immediately with `block()` — include `urgency` level.
 - **ALWAYS** check `inbox()` at session start and periodically during long sessions.
-- **NEVER** make decisions that contradict existing decisions without explicitly recording a new `decide()` that supersedes the old one.
+- **ALWAYS** include `rationale` and `alternatives` when using `decide()` — decisions without reasoning are useless for future sessions.
+- **NEVER** make decisions that contradict existing decisions without explicitly recording a new `decide()` with `supersedes` pointing to the old decision's nodeId.
 - **PREFER** `context(query)` over re-discovering knowledge that may already exist in the graph.
+- **PREFER** `propose(content)` when you observe something but aren't sure how to classify it — let Sage decide.
 
 ---
 

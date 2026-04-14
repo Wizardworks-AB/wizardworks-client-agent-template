@@ -177,29 +177,27 @@ Even in maintenance:
 
 This agent is connected to the Fae knowledge graph via Remindr MCP. The knowledge graph is a shared, persistent memory across all agents and sessions working on this project.
 
+> For full tool reference with all parameters, see the greenfield CLAUDE.md. This section highlights the maintenance-specific session flow.
+
 ### Session Flow
 
-1. **Session start** → `briefing()` — Orient yourself. Check recent bugs, resolutions, and active blockers.
-2. **Before fixing** → `context(query)` — Search for related bugs, previous fixes, and known gotchas.
-3. **After fixing** → `decide(decision, rationale)` — Document fix approach and rationale.
-4. **Gotchas** → `remember("gotcha", title, content)` — Save non-obvious findings for future sessions.
-5. **Blockers** → `block(description)` / `resolve(nodeId, resolution)` — Track immediately.
-6. **Communication** → `send(to, subject, content)` / `inbox()` — Coordinate with other agents.
-7. **Session end** → `remember("state", ...)` — Persist session state.
-
-### Tools
-
-**Read:** `context(query)`, `briefing()`, `status()`, `why(query)`, `get(nodeId)`, `list(type?, status?)`, `blockers()`, `inbox()`
-
-**Write:** `decide(decision, rationale)`, `remember(type, title, content)`, `block(description)`, `resolve(nodeId, resolution)`, `forget(nodeId)`, `link(from, to, type)`, `send(to, subject, content)`, `reply(threadId, content)`
+1. **Session start** → `briefing(sinceLastSession: true)` — Orient yourself. Check recent bugs, resolutions, active blockers, unread messages.
+2. **Check messages** → `inbox()` then `read_thread(threadId)` — Check for updates from other agents.
+3. **Before fixing** → `context(query)` — Search for related bugs, previous fixes, and known gotchas. The same issue may have been seen before.
+4. **After fixing** → `decide(decision, rationale, alternatives)` — Document fix approach, what was wrong, and why this fix was chosen over alternatives.
+5. **Gotchas** → `remember("gotcha", title, content)` — Save non-obvious findings for future debugging sessions.
+6. **Blockers** → `block(description, urgency)` / `resolve(nodeId, resolution)` — Track immediately with urgency level.
+7. **Communication** → `send(to, subject, content)` — Coordinate with other agents. Use `"*"` for broadcast.
+8. **Session end** → `remember("state", title, content)` — Persist session state.
 
 ### Rules
 
-- **ALWAYS** run `briefing()` at session start.
+- **ALWAYS** run `briefing(sinceLastSession: true)` at session start.
 - **ALWAYS** search `context("similar bug")` before fixing — the same issue may have been seen before.
-- **ALWAYS** document fixes with `decide()` including what was wrong and why this fix was chosen.
-- **ALWAYS** save gotchas that could help future debugging sessions.
+- **ALWAYS** document fixes with `decide()` including `rationale` and `alternatives` — decisions without reasoning are useless for future sessions.
+- **ALWAYS** save gotchas with `remember("gotcha", ...)` that could help future debugging.
 - **ALWAYS** check `inbox()` at session start.
+- **PREFER** `propose(content)` when observing patterns (e.g., recurring bugs) but unsure how to classify them.
 
 ---
 
