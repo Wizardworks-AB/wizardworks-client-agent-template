@@ -293,7 +293,6 @@ Follow this flow in every session:
 
 | Document | Purpose |
 |----------|---------|
-| [.claude/CHANGELOG.md](.claude/CHANGELOG.md) | What's changed (for humans) |
 | [.claude/plans/](.claude/plans/) | Decision records (why changes were made) |
 | [.claude/CONSTITUTION.md](.claude/CONSTITUTION.md) | Engineering principles |
 | [.claude/DOC.md](.claude/DOC.md) | Complete usage guide |
