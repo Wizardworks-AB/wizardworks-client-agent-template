@@ -1,0 +1,166 @@
+{
+  "hooks": [
+    {
+      "name": "Check for Hardcoded Secrets",
+      "description": "Prevent committing hardcoded secrets, API keys, passwords, or connection strings",
+      "matcher": "tool == \"Write\" || tool == \"Edit\"",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node \"{{hooksDir}}/scripts/check-secrets.js\" \"{{tool_input.file_path}}\"",
+          "continueOnError": false
+        }
+      ]
+    },
+    {
+      "name": "Check for Database ID Exposure",
+      "description": "Ensure Public IDs are used instead of database IDs in API code",
+      "matcher": "(tool == \"Write\" || tool == \"Edit\") && (tool_input.file_path matches \"Controller\" || tool_input.file_path matches \"Dto\")",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node \"{{hooksDir}}/scripts/check-public-ids.js\" \"{{tool_input.file_path}}\"",
+          "continueOnError": false
+        }
+      ]
+    },
+    {
+      "name": "Check for console.log",
+      "description": "Warn about console.log statements in production code",
+      "matcher": "(tool == \"Write\" || tool == \"Edit\") && (tool_input.file_path matches \"\\.(ts|tsx|js|jsx)$\")",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node \"{{hooksDir}}/scripts/check-console-log.js\" \"{{tool_input.file_path}}\"",
+          "continueOnError": true
+        }
+      ]
+    },
+    {
+      "name": "Enforce DTO Usage",
+      "description": "Ensure controllers use DTOs instead of entity models",
+      "matcher": "(tool == \"Write\" || tool == \"Edit\") && tool_input.file_path matches \"Controller\"",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node \"{{hooksDir}}/scripts/check-dto-usage.js\" \"{{tool_input.file_path}}\"",
+          "continueOnError": true
+        }
+      ]
+    },
+    {
+      "name": "Check Test Coverage",
+      "description": "Remind to write tests for new code",
+      "matcher": "(tool == \"Write\") && (tool_input.file_path matches \"Service|Repository|Controller\" && !(tool_input.file_path matches \"Test\"))",
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "⚠️ Remember: Wizardworks requires 80%+ test coverage. Have you written tests for this code?"
+        }
+      ]
+    },
+    {
+      "name": "Verify TDD Workflow",
+      "description": "Encourage test-first development",
+      "matcher": "tool == \"Write\" && tool_input.file_path matches \"Test\"",
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "✅ Great! Following TDD by writing tests first. Remember:\n1. RED: Test should fail\n2. GREEN: Write minimal implementation\n3. REFACTOR: Improve code quality"
+        }
+      ]
+    },
+    {
+      "name": "Infrastructure as Code Check",
+      "description": "Remind to use Bicep for Azure resources",
+      "matcher": "user_message matches \"(?i)(create|add|deploy).*(azure|resource|app service|sql|database|key vault)\"",
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "🏗️ Wizardworks Standard: All Azure resources must be defined in Bicep (infrastructure/). Never create resources manually in the portal."
+        }
+      ]
+    },
+    {
+      "name": "Security Review Reminder",
+      "description": "Remind about security review for sensitive operations",
+      "matcher": "(tool == \"Write\" || tool == \"Edit\") && (tool_input.file_path matches \"(?i)(auth|login|password|token|secret|key)\")",
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "🔒 Security Check Required:\n- No hardcoded secrets\n- Input validation implemented\n- Authentication/authorization verified\n- Use Azure Key Vault for secrets\n\nRun /code-review when done!"
+        }
+      ]
+    },
+    {
+      "name": "Async/Await Check",
+      "description": "Ensure async methods use await properly in C#",
+      "matcher": "(tool == \"Write\" || tool == \"Edit\") && tool_input.file_path matches \"\\.cs$\"",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node \"{{hooksDir}}/scripts/check-async-await.js\" \"{{tool_input.file_path}}\"",
+          "continueOnError": true
+        }
+      ]
+    },
+    {
+      "name": "Immutability Check",
+      "description": "Check for state mutation in TypeScript/React code",
+      "matcher": "(tool == \"Write\" || tool == \"Edit\") && tool_input.file_path matches \"\\.(ts|tsx)$\"",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node \"{{hooksDir}}/scripts/check-immutability.js\" \"{{tool_input.file_path}}\"",
+          "continueOnError": true
+        }
+      ]
+    },
+    {
+      "name": "Layer Separation Check",
+      "description": "Verify Controller-Service-Repository pattern adherence",
+      "matcher": "(tool == \"Write\" || tool == \"Edit\") && (tool_input.file_path matches \"Controller\\.cs$\")",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node \"{{hooksDir}}/scripts/check-layer-separation.js\" \"{{tool_input.file_path}}\"",
+          "continueOnError": true
+        }
+      ]
+    },
+    {
+      "name": "TanStack Query Check",
+      "description": "Ensure TanStack Query is used for data fetching in React",
+      "matcher": "(tool == \"Write\" || tool == \"Edit\") && tool_input.file_path matches \"components/.*\\.(tsx|ts)$\"",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node \"{{hooksDir}}/scripts/check-tanstack-query.js\" \"{{tool_input.file_path}}\"",
+          "continueOnError": true
+        }
+      ]
+    },
+    {
+      "name": "Docker Configuration Check",
+      "description": "Remind to update Docker configuration when dependencies change",
+      "matcher": "(tool == \"Write\" || tool == \"Edit\") && (tool_input.file_path matches \"package\\.json|.*\\.csproj$\")",
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "📦 Dependency Change Detected:\nIf you've added new packages, remember to:\n1. Update Dockerfile if needed\n2. Update docker-compose.yml\n3. Rebuild containers: docker-compose build"
+        }
+      ]
+    },
+    {
+      "name": "Code Review Reminder",
+      "description": "Suggest code review after significant changes",
+      "matcher": "tool == \"Write\" && !(tool_input.file_path matches \"Test\")",
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "📝 After completing your implementation, run /code-review to verify:\n- Wizardworks standards compliance\n- Security best practices\n- Code quality\n- Architecture patterns"
+        }
+      ]
+    }
+  ]
+}
