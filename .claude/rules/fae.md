@@ -10,6 +10,32 @@ The MCP server is configured in `.mcp.json` with `X-Tenant-Id` and `X-Default-Pr
 
 Run `briefing(sinceLastSession: true)` at the start of every session to orient yourself — recent decisions, new blockers, what changed since your last session. If the user mentions a specific project, run `status(project)` for deeper detail.
 
+## The Graph Owns Context
+
+The knowledge graph is the authoritative source of project context — decisions, infrastructure, conventions, history. You do not. Before asking the user **anything** about the project, search the graph first.
+
+If a user request references something you don't know — a system, a decision, a name, a process, a past incident — your first move is `context(query)`, not a clarifying question. Only escalate to the user for information the graph genuinely does not have.
+
+**Wrong**: User asks about prod pipelines → "I don't have tools for that, where do pipelines run?"
+**Right**: User asks about prod pipelines → `context("prod pipelines containers")` → answer, or ask only about the specific gap the graph didn't cover.
+
+## Graph Language — Always English
+
+All communication with the graph is in English, in both directions — what you write (`remember`, `decide`, `block`, `resolve`) and what you query (`context`, `why`, `list` filters). Translate the user's Swedish (or any other language) into English before calling a graph tool, and translate graph content back into the conversation language when presenting it to the user.
+
+**Exception — verbatim fragments stay in original form**: proper nouns, product/project names, identifiers, filenames, error output, and direct quotes. Translate the narration around them, not the fragments themselves.
+
+**Why**: the codebase is English (per `CLAUDE.md`), embedding-based search, deduplication, and contradiction detection work best with a single language, and the graph is shared across agents and future readers who may not read Swedish.
+
+### Migration — Opportunistic Swedish → English Cleanup
+
+Existing Swedish nodes will produce worse retrieval and won't dedup against new English nodes. Do **not** run a bulk migration — translate opportunistically instead:
+
+- When you `get()` or `context()` a node and notice it's in Swedish, translate it to English on your next natural write to that node (e.g. when you supersede a decision, resolve a blocker, or add a related fact).
+- When using `forget()` or `resolve()` on a Swedish node, the replacement/resolution content you write must be in English.
+- Never translate verbatim fragments inside a node (quotes, identifiers, error output) — only the narration.
+- Do not invent edits just to translate. Touch nodes only when you have a real reason to write to them.
+
 ## Auto-Save Triggers — You MUST Save to Fae When Any of These Happen
 
 1. **After every git commit** → `remember("fact", "commit summary", "branch, files changed, what was done and why")`
@@ -85,4 +111,6 @@ These features run automatically — you do not trigger them:
 - **ALWAYS** save gotchas immediately with `remember("gotcha", title, content)`.
 - **ALWAYS** document blockers immediately with `block()` — include `urgency`.
 - **NEVER** make decisions that contradict existing ones without recording a new `decide()` with `supersedes` pointing to the old decision's nodeId.
+- **ALWAYS** search the graph with `context()` before asking the user any question about the project. The graph owns context; assume it knows before assuming it doesn't.
+- **ALWAYS** communicate with the graph in English — both writes (`remember`, `decide`, `block`, `resolve`) and reads (`context`, `why`). Keep verbatim fragments (names, identifiers, quotes) in original form.
 - **PREFER** `context(query)` over re-discovering knowledge that may already exist in the graph.
