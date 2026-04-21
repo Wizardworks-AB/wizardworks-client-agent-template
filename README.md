@@ -31,11 +31,29 @@ Add project-specific notes: domain terminology, tech deviations, key contacts.
 
 ### 4. Connect to Fae
 
-```bash
-claude mcp add --transport http remindr <FAE_URL>/mcp
+Create `.mcp.json` in your agent repo root:
+
+```json
+{
+  "mcpServers": {
+    "remindr": {
+      "type": "http",
+      "url": "<FAE_URL>/mcp",
+      "headers": {
+        "X-Default-Project": "<PROJECT_NAME>"
+      }
+    }
+  }
+}
 ```
 
-Authenticate with your Entra ID work account when prompted.
+Replace `<FAE_URL>` with your project's Fae URL and `<PROJECT_NAME>` with your project name.
+
+> **Do NOT use `claude mcp add`** — that stores the server in your user-level `~/.claude.json`, which is not version-controlled or shared across the team. `.mcp.json` lives in the agent repo so every team member and every agent instance gets the same MCP configuration automatically.
+
+Authenticate with your Entra ID work account when prompted on first run.
+
+See [Connect to Fae](https://github.com/Wizardworks-AB/wizardworks-agentic-patterns-and-practices/blob/master/getting-started/04-connect-to-fae.md) for full details.
 
 ### 5. Start working
 
