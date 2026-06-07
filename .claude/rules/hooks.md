@@ -1,6 +1,6 @@
 # Automated Hooks
 
-16 hooks run automatically as the agent works (writing code, committing, or discussing operations). They are defined in `.claude/hooks/hooks.json`.
+15 hooks run automatically as the agent works (writing code or discussing operations). They are defined in `.claude/hooks/hooks.json`.
 
 ## Blocking (Will Stop You)
 
@@ -27,12 +27,14 @@
 
 ## Knowledge Graph (Fae)
 
-These prompt you to keep the shared Fae knowledge graph current (see `.claude/rules/fae.md`):
+Keeps the shared Fae knowledge graph current (see `.claude/rules/fae.md`):
 
-- **Save Commit to Knowledge Graph** — after a `git commit`, prompts `remember("fact", …)` (auto-save trigger 1).
 - **Record Operational Event** — when you mention a deploy/rollback/incident/outage, nudges `record_episode(…)` (and `record_outcome` if it's the result of a past decision) instead of a generic fact.
 
-The **session-start `briefing(sinceLastSession: true)`** reminder is intentionally NOT a hook — this hook runner has no session-lifecycle event, and firing on every message would be noise. It's enforced by the "Session Start" section and the first rule in `.claude/rules/fae.md`.
+This runner only dispatches on `Write`/`Edit` tool use and `user_message` (see the matcher grammar in `.claude/hooks/README.md`) — it has no `git commit`/Bash or session-lifecycle event. So two graph behaviors are enforced by `.claude/rules/fae.md` rules rather than hooks (a `user_message` proxy would just be noise):
+
+- **post-commit `remember("fact", …)`** → auto-save trigger 1 in `fae.md`.
+- **session-start `briefing(sinceLastSession: true)`** → the "Session Start" section + first rule in `fae.md`.
 
 ## Adjusting Hooks for Existing Codebases
 
