@@ -44,6 +44,11 @@ Existing Swedish nodes will produce worse retrieval and won't dedup against new 
 4. **After hitting a surprise/gotcha** → `remember("gotcha", title, content)`
 5. **After resolving a blocker** → `resolve(nodeId, resolution)`
 6. **After completing a significant task** → `remember("fact", "task summary", details)`
+7. **After a deploy / rollback / incident** → `record_episode(title, content, occurredAt)` — a time-stamped event, not a generic fact
+8. **After observing the outcome of a decision or plan** → `record_outcome(decisionOrPlanNodeId, content, direction)` where direction is `positive` or `negative`
+9. **When you are guessing, not stating a known fact** → `hypothesize(title, content, initialConfidence)` instead of `remember("fact", ...)`; later `confirm_hypothesis` / `refute_hypothesis` with evidence
+10. **When a question is raised with no answer yet** → `ask_question(question, context?)`; `answer_question` once it is resolved
+11. **When starting a larger goal** → `set_goal(title, content)` (sub-goals link via `part_of`; the plan/decision that achieves it links via `achieves_goal`)
 
 This is not optional. If you committed code or made a decision without saving to Fae, you have a bug in your workflow. The next agent session will have no idea what happened.
 
@@ -71,12 +76,14 @@ Every time you create substantive content (plans, specs, analysis), store the **
 | Tool | Parameters | Purpose |
 |------|-----------|---------|
 | `briefing` | `project?`, `recentHours?` (default 24), `sinceLastSession?` (default false), `timezone?` | Project summary — open blockers, recent decisions, stale items |
-| `context` | `query`, `project?` | Semantic search in the knowledge graph |
+| `context` | `query`, `project?`, `preferSummaries?`, `includeExpired?` | Semantic search. `preferSummaries` substitutes community-summary nodes for their members; `includeExpired` includes expired edges |
 | `status` | `project?` | Current project state — active decisions, open blockers, recent changes |
-| `get` | `nodeId` | Full untruncated node content (use when context() truncates) |
+| `get` | `nodeId` | Full untruncated node content (use when context() truncates, or to drill into a community node's members) |
 | `list` | `type?`, `status?`, `project?` | List nodes with filters |
-| `why` | `query`, `project?` | Trace decision chains — follows led_to, supersedes, contradicts edges |
+| `why` | `query`, `project?` | Trace causal/decision chains — follows achieves_goal, caused, led_to, supersedes, validates, refutes edges |
 | `blockers` | `project?` | List all active blockers |
+| `goals` | `project?`, `parentGoalId?` | List goals; hierarchical via `part_of` edges |
+| `open_questions` | `project?` | List unanswered (`status: active`) question nodes |
 
 ## Write Tools
 
@@ -87,12 +94,32 @@ Every time you create substantive content (plans, specs, analysis), store the **
 | `block` | `description`, `project?`, `urgency?` (`low/medium/high/critical`), `relatedTo?` (nodeId[]) | Register a blocker with urgency level. |
 | `resolve` | `nodeId`, `resolution` | Resolve a blocker. Automatically creates a linked fact node with the resolution. |
 | `forget` | `nodeId`, `reason?` | Mark knowledge as stale. Also marks linked contradictions as stale. |
+| `record_episode` | `title`, `content`, `occurredAt`, `project?`, `relatedTo?`, `caused?` | Record a time-stamped event (deploy, release, incident). |
+| `record_outcome` | `decisionOrPlanNodeId`, `content`, `direction` (`positive`/`negative`), `observedAt?`, `project?` | Record the realized outcome of a decision/plan. Negative outcomes auto-check against confirmed hypotheses. |
+| `set_goal` | `title`, `content`, `parentGoalId?`, `project?` | Create a goal node (sub-goals via `part_of`). |
+| `hypothesize` | `title`, `content`, `initialConfidence?` (0–1), `predicts?`, `project?` | Record a hypothesis (a guess, not a fact). |
+| `confirm_hypothesis` / `refute_hypothesis` | `nodeId`, `evidence` | Resolve a hypothesis with an evidence node + `validates`/`refutes` edge. |
+| `ask_question` | `question`, `context?`, `project?` | Record an open question. |
+| `answer_question` | `questionId`, `answeringNodeId` | Answer a question (`answered_by` edge). |
+| `expire_edge` | `edgeId`, `reason?` | End a relationship's validity (temporal close) — NOT a delete; history is preserved. |
 
 ## Node Types for `remember()`
 
 `fact` · `gotcha` · `preference` · `state` · `entity` · `plan`
 
 Use `decide()` for decisions and `block()` for blockers — they have dedicated tools with extra logic (contradiction detection, urgency tracking).
+
+### Dedicated tools — do NOT use `remember()` for these
+
+Some knowledge has a dedicated tool with extra logic; `remember("fact", ...)` is the wrong choice for it:
+
+| Instead of `remember("fact", ...)` for… | Use | Example |
+|------|-----|---------|
+| A time-stamped event | `record_episode` | "Production deploy at 14:32 UTC" → `record_episode` |
+| A realized result of a decision/plan | `record_outcome` | "Migration caused a 3× latency increase" → `record_outcome(direction: negative)` |
+| A goal / objective | `set_goal` | "Ship multi-region by Q3" → `set_goal` |
+| A guess / unproven belief | `hypothesize` | "I think the bottleneck is the auth round-trip" → `hypothesize`, not a fact |
+| An open question | `ask_question` | "Why does the nightly job retry 3×?" → `ask_question` |
 
 ## Automatic Intelligence
 
@@ -103,6 +130,14 @@ These features run automatically — you do not trigger them:
 - **Auto-linking** — new nodes are linked to semantically related existing nodes.
 - **Confidence decay** — old, unreferenced nodes gradually lose confidence over time.
 
+## Edges Have Time
+
+Edges carry temporal validity (`valid_from` / `valid_until`). **Default queries return only currently-active edges** — so what you read is the graph's *current* state, not its whole history.
+
+- When a relationship ends (a contributor leaves, a dependency is dropped, a convention is replaced), call `expire_edge(edgeId)` — **do NOT delete it**. Expiring preserves history; deleting destroys it.
+- To see historical state, pass `asOf: <ISO-8601>` (the graph as it was at that moment) or `includeExpired: true` to the read tools that support them.
+- Superseded nodes' stale `led_to`/`caused` edges are expired automatically by the server; you rarely expire those by hand.
+
 ## Rules
 
 - **ALWAYS** run `briefing(sinceLastSession: true)` at the start of every session before doing any work.
@@ -110,7 +145,7 @@ These features run automatically — you do not trigger them:
 - **ALWAYS** include `rationale` and `alternatives` when using `decide()`.
 - **ALWAYS** save gotchas immediately with `remember("gotcha", title, content)`.
 - **ALWAYS** document blockers immediately with `block()` — include `urgency`.
-- **NEVER** make decisions that contradict existing ones without recording a new `decide()` with `supersedes` pointing to the old decision's nodeId.
 - **ALWAYS** search the graph with `context()` before asking the user any question about the project. The graph owns context; assume it knows before assuming it doesn't.
 - **ALWAYS** communicate with the graph in English — both writes (`remember`, `decide`, `block`, `resolve`) and reads (`context`, `why`). Keep verbatim fragments (names, identifiers, quotes) in original form.
+- **NEVER** make decisions that contradict existing ones without recording a new `decide()` with `supersedes` pointing to the old decision's nodeId.
 - **PREFER** `context(query)` over re-discovering knowledge that may already exist in the graph.

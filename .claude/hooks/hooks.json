@@ -161,6 +161,28 @@
           "prompt": "📝 After completing your implementation, run /code-review to verify:\n- Wizardworks standards compliance\n- Security best practices\n- Code quality\n- Architecture patterns"
         }
       ]
+    },
+    {
+      "name": "Save Commit to Knowledge Graph",
+      "description": "After a git commit, remember it in the Fae knowledge graph (auto-save trigger 1)",
+      "matcher": "tool == \"Bash\" && tool_input.command matches \"git commit\"",
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "🧠 Fae: you just committed. Record it in the knowledge graph — remember(\"fact\", \"<commit summary>\", \"branch, files changed, what changed and why\"). See .claude/rules/fae.md."
+        }
+      ]
+    },
+    {
+      "name": "Record Operational Event",
+      "description": "Nudge to capture deploys/incidents as time-stamped episodes, not generic facts",
+      "matcher": "user_message matches \"(?i)(deploy|rollback|incident|outage|went (down|live)|hotfix|released)\"",
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "🧠 Fae: that sounds like a time-stamped event. Use record_episode(title, content, occurredAt) — not remember(\"fact\", ...). If it is the realized result of a past decision/plan, also record_outcome. See .claude/rules/fae.md."
+        }
+      ]
     }
   ]
 }
