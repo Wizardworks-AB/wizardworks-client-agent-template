@@ -161,6 +161,17 @@
           "prompt": "📝 After completing your implementation, run /code-review to verify:\n- Wizardworks standards compliance\n- Security best practices\n- Code quality\n- Architecture patterns"
         }
       ]
+    },
+    {
+      "name": "Record Operational Event",
+      "description": "Nudge to capture deploys/incidents as time-stamped episodes, not generic facts",
+      "matcher": "user_message matches \"(?i)(deploy|rollback|incident|outage|went (down|live)|hotfix|released)\"",
+      "hooks": [
+        {
+          "type": "prompt",
+          "prompt": "🧠 Fae: that sounds like a time-stamped event. Use record_episode(title, content, occurredAt) — not remember(\"fact\", ...). If it is the realized result of a past decision/plan, also record_outcome. See .claude/rules/fae.md."
+        }
+      ]
     }
   ]
 }
