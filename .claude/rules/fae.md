@@ -4,7 +4,7 @@ This agent is connected to the Fae knowledge graph via Remindr MCP. The knowledg
 
 ## Configuration
 
-The MCP server is configured in `.mcp.json` with `X-Tenant-Id` and `X-Default-Project` headers. This means you **do not need to pass `project`** on every tool call — it resolves automatically from the header. Only pass `project` if you need to work with a different project than the default.
+The MCP server is configured in `.mcp.json` with `X-Organization-Id` and `X-Default-Project` headers. This means you **do not need to pass `project`** on every tool call — it resolves automatically from the header. Only pass `project` if you need to work with a different project than the default.
 
 ## Session Start
 
