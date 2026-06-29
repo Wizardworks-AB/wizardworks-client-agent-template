@@ -1,6 +1,6 @@
 # Automated Hooks
 
-14 hooks run automatically when the agent writes code. They are defined in `.claude/hooks/hooks.json`.
+15 hooks run automatically when the agent writes code. They are defined in `.claude/hooks/hooks.json`.
 
 ## Blocking (Will Stop You)
 
@@ -24,6 +24,10 @@
 - **Security Review Reminder** — Check security
 - **Docker Configuration** — Update containers
 - **Code Review Reminder** — Run /code-review
+
+## Knowledge Graph (Fae)
+
+- **Record Operational Event** — When you mention a deploy, rollback, incident, outage, hotfix, or release, nudges you to capture it with `record_episode(title, content, occurredAt)` (a time-stamped event) instead of `remember("fact", ...)`, and to `record_outcome` if it is the realized result of a past decision/plan. See `.claude/rules/fae.md`.
 
 ## Adjusting Hooks for Existing Codebases
 

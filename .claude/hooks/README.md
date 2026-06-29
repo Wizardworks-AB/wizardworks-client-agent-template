@@ -197,6 +197,12 @@ Reminds to update Docker configuration when dependencies change.
 
 Suggests running `/code-review` after implementation.
 
+### 15. Record Operational Event (Fae)
+**Trigger**: A user message mentioning a deploy, rollback, incident, outage, hotfix, or release
+**Severity**: INFO (reminds)
+
+Nudges you to capture the event in the Fae knowledge graph with `record_episode(title, content, occurredAt)` — a time-stamped episode, not a generic `remember("fact", ...)` — and to `record_outcome` when it is the realized result of a past decision/plan. See `.claude/rules/fae.md`.
+
 ## Hook Execution Flow
 
 ```
