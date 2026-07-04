@@ -1,0 +1,18 @@
+# Fae MCP server for Codex — append this to ~/.codex/config.toml
+# (Codex reads MCP servers from the global config; there is no per-project
+# MCP file. Keep one entry per Fae project and switch with profiles if you
+# work on several.)
+
+[mcp_servers.fae]
+url = "{{FAE_MCP_URL}}"
+
+[mcp_servers.fae.http_headers]
+X-Organization-Id = "{{ORGANIZATION_ID}}"
+X-Default-Project = "{{PROJECT_NAME}}"
+
+# Older Codex versions without streamable-HTTP MCP support can bridge via
+# mcp-remote instead:
+#
+# [mcp_servers.fae]
+# command = "npx"
+# args = ["-y", "mcp-remote", "{{FAE_MCP_URL}}", "--header", "X-Organization-Id: {{ORGANIZATION_ID}}", "--header", "X-Default-Project: {{PROJECT_NAME}}"]

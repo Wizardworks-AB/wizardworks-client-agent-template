@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "renderedFiles": [
+    { "path": "CLAUDE.md" },
+    { "path": "GETTING-STARTED.md" },
+    { "path": ".mcp.json.template", "requiresProject": true, "outputPath": ".mcp.json" }
+  ]
+}

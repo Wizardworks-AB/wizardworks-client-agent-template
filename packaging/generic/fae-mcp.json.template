@@ -1,0 +1,12 @@
+{
+  "//": "Fae MCP server — tool-neutral connection details. Register this HTTP MCP server in your agent tool; header names and values must be passed exactly as below.",
+  "server": {
+    "name": "fae",
+    "transport": "http",
+    "url": "{{FAE_MCP_URL}}",
+    "headers": {
+      "X-Organization-Id": "{{ORGANIZATION_ID}}",
+      "X-Default-Project": "{{PROJECT_NAME}}"
+    }
+  }
+}

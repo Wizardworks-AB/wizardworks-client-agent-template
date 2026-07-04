@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "renderedFiles": [
+    { "path": "AGENTS.md" },
+    { "path": "GETTING-STARTED.md" },
+    { "path": "fae-mcp.json.template", "requiresProject": true, "outputPath": "fae-mcp.json" }
+  ]
+}

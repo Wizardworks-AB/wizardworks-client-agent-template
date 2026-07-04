@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "fae": {
+      "type": "http",
+      "url": "{{FAE_MCP_URL}}",
+      "headers": {
+        "X-Organization-Id": "{{ORGANIZATION_ID}}",
+        "X-Default-Project": "{{PROJECT_NAME}}"
+      }
+    }
+  }
+}

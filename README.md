@@ -1,114 +1,90 @@
-# Wizardworks Client Agent Template
+# Wizardworks Client Agent Templates
 
-A GitHub template for creating client agent repositories. Each client agent is a Claude Code configuration that sits alongside a customer's code repository, providing AI-assisted development with automated guardrails and Fae knowledge graph integration.
+Authoring source for the Wizardworks client agent templates. A client agent
+is an AI-agent configuration that sits alongside a customer's code
+repository, providing AI-assisted development with Wizardworks standards,
+automated guardrails and Fae knowledge graph integration.
 
-## Quick Start
+**Templates are distributed via Fae, not from this repo.** Customers and
+consultants download them from the Fae portal; this repository is where the
+content is authored and packaged.
 
-### 1. Create your agent repo
+## Getting a template (users)
 
-Click **"Use this template"** on GitHub to create a new repo (e.g., `acme-agent`).
+1. Open the Fae portal → your organization → **Agent templates**.
+2. Pick a variant (see below) and, optionally, the project you'll work in.
+3. Preview the files if you like, then **Download template**.
 
-### 2. Clone locally
+With a project selected, the bundle arrives ready to use: the Fae connection
+(`.mcp.json` / MCP config) is generated for that project, along with a
+`fae-template.json` version marker. Without a project you get an
+organization-generic bundle — create the project later and use
+**Download .mcp.json only** on the same page to complete it.
 
-```bash
-git clone https://github.com/Wizardworks-AB/<your-agent-repo>.git ~/agents/<customer-name>/
-```
-
-### 3. Configure
-
-Edit `CLAUDE.md` and fill in the placeholders:
-
-```markdown
-## Project
-- **Customer:** Acme Corp
-- **Domain:** E-commerce platform for industrial supplies
-- **Code repository:** ~/code/acme-project/
-- **Tech stack:** .NET 10, React 19, Azure
-- **Fae URL:** https://remindr.wizardworks.se
-```
-
-Add project-specific notes: domain terminology, tech deviations, key contacts.
-
-### 4. Connect to Fae
-
-Create `.mcp.json` in your agent repo root:
-
-```json
-{
-  "mcpServers": {
-    "remindr": {
-      "type": "http",
-      "url": "<FAE_URL>/mcp",
-      "headers": {
-        "X-Default-Project": "<PROJECT_NAME>"
-      }
-    }
-  }
-}
-```
-
-Replace `<FAE_URL>` with your project's Fae URL and `<PROJECT_NAME>` with your project name.
-
-> **Do NOT use `claude mcp add`** — that stores the server in your user-level `~/.claude.json`, which is not version-controlled or shared across the team. `.mcp.json` lives in the agent repo so every team member and every agent instance gets the same MCP configuration automatically.
-
-Authenticate with your Entra ID work account when prompted on first run.
-
-See [Connect to Fae](https://github.com/Wizardworks-AB/wizardworks-agentic-patterns-and-practices/blob/master/getting-started/04-connect-to-fae.md) for full details.
-
-### 5. Start working
-
-```bash
-cd ~/agents/<customer-name>/
-claude
-```
-
-The agent reads `CLAUDE.md`, connects to the Fae knowledge graph, and operates on the code repository specified in the config.
-
-## Directory Structure
-
-```
-~/agents/<customer-name>/          ← This repo (agent config)
-~/code/<customer-project>/         ← Customer code repo (separate)
-```
-
-The agent repo and code repo are siblings. Agent configuration, decisions, and Wizardworks IP stay separate from customer code.
-
-## What's Included
-
-| Component | Description |
-|-----------|-------------|
-| `CLAUDE.md` | Main agent configuration with Fae integration |
-| `.claude/agents/` | 10 specialist agent definitions (architect, TDD, security, etc.) |
-| `.claude/commands/` | 10 slash commands (`/plan`, `/tdd`, `/code-review`, `/commit`, etc.) |
-| `.claude/hooks/` | 14 automated guardrails (secrets detection, layer separation, etc.) |
-| `.claude/rules/` | 4 standard documents (coding style, testing, security, git workflow) |
-| `.claude/skills/` | 3 pattern libraries (.NET, React, Infrastructure as Code) |
-| `.claude/contexts/` | 3 execution modes (dev, research, review) |
-| `variants/` | Alternative CLAUDE.md files for existing codebases and maintenance projects |
+Each bundle contains a `GETTING-STARTED.md` with the variant-specific steps.
+The Claude Code variant also checks Fae for newer template versions at
+session start and tells you when to re-download.
 
 ## Variants
 
-The default `CLAUDE.md` is for **greenfield** projects. For other project types, replace `CLAUDE.md` with the appropriate variant:
+| Variant | For | Main config | Extras |
+|---------|-----|-------------|--------|
+| `claude-code` | Claude Code | `CLAUDE.md` + `.claude/` | 10 specialist agents, 10 slash commands, 15 guardrail hooks, 3 skills, update-check hook |
+| `codex` | OpenAI Codex | `AGENTS.md` + `rules/` | Codex MCP config for `~/.codex/config.toml`; guardrails as instructions (Codex has no hook system) |
+| `generic` | Any AGENTS.md-capable tool | `AGENTS.md` + `rules/` | Tool-neutral MCP connection file |
 
-| Variant | When to use |
-|---------|-------------|
-| `variants/greenfield/` | New projects (default — use root CLAUDE.md as-is) |
-| `variants/existing-codebase/` | Working in a customer's existing codebase |
-| `variants/maintenance/` | Bug-fix and support projects |
+All variants share the same core: the Wizardworks standards in
+`.claude/rules/` (packaged as `rules/` for non-Claude variants) and the Fae
+knowledge-graph working contract.
 
-## Fae Integration
+## Repository layout (authors)
 
-The template includes built-in instructions for the Fae knowledge graph (Remindr MCP). The agent will:
+```
+.claude/            Shared core: rules, agents, commands, hooks, skills, docs
+variants/           Project-type variants for CLAUDE.md (greenfield/existing/maintenance)
+packaging/          Per-vendor overlays + manifests + build script
+  build-packages.mjs
+  claude-code/      CLAUDE.md (tokenized), .mcp.json.template, manifest.json
+  codex/            AGENTS.md, fae-mcp-config.toml.template, manifest.json
+  generic/          AGENTS.md, fae-mcp.json.template, manifest.json
+CLAUDE.md           This repo's OWN agent config (Fae's client agent) — NOT packaged
+```
 
-- Run `briefing()` at session start to orient itself
-- Search `context(query)` before implementation to leverage existing knowledge
-- Record decisions with `decide()` for traceability
-- Save insights with `remember()` for future sessions
-- Track blockers with `block()` / `resolve()`
-- Communicate with other agents via `send()` / `inbox()`
+The root `CLAUDE.md` configures the agent that works on Fae itself; the
+customer-facing `CLAUDE.md` shipped in packages is
+`packaging/claude-code/CLAUDE.md` (tokenized).
+
+### Tokens
+
+Files listed as `renderedFiles` in a variant's `manifest.json` get
+`{{TOKEN}}` substitution when a user downloads a bundle:
+`ORGANIZATION_ID`, `ORGANIZATION_NAME`, `FAE_MCP_URL`, `FAE_API_URL`,
+`PROJECT_NAME`, `PROJECT_DISPLAY_NAME` (project-scoped only),
+`TEMPLATE_VARIANT`, `TEMPLATE_VERSION`. Files marked `requiresProject` are
+omitted entirely from organization-generic downloads.
+
+## Publishing a new version (platform admins)
+
+```bash
+# 1. Build the packages
+node packaging/build-packages.mjs            # → dist/claude-code.zip, dist/codex.zip, dist/generic.zip
+
+# 2. Publish to Fae (per variant)
+curl -X POST "$FAE_API/api/portal/admin/agent-templates/claude-code/versions" \
+  -H "X-Admin-Service-Token: $TOKEN" \
+  -F "file=@dist/claude-code.zip;type=application/zip" \
+  -F "version=1.2.0" \
+  -F "changelog=What changed"
+```
+
+Versions are immutable — bump the version for every publish. Published
+versions become visible on every organization's *Agent templates* page
+immediately.
+
+> An automated publish pipeline (build + publish on merge) is planned under
+> Epic #1978 / #1979 — until then, publishing is this manual step.
 
 ## Learn More
 
-- [Wizardworks Agentic Patterns and Practices](https://github.com/Wizardworks-AB/wizardworks-agentic-patterns-and-practices) — Full methodology documentation
-- [Fae Architecture](https://github.com/Wizardworks-AB/fae-architecture) — Platform architecture
-- [Remindr](https://github.com/Wizardworks-AB/remindr) — Knowledge graph MCP server
+- [Wizardworks Agentic Patterns and Practices](https://github.com/Wizardworks-AB/wizardworks-agentic-patterns-and-practices)
+- [Fae Architecture](https://github.com/Wizardworks-AB/fae-architecture)
