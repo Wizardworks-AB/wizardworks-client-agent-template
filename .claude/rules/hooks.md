@@ -2,6 +2,10 @@
 
 15 hooks run automatically as the agent works (writing code or discussing operations). They are defined in `.claude/hooks/hooks.json`.
 
+In addition, one native Claude Code hook is defined in `.claude/settings.json`:
+
+- **Agent Template Update Check** (SessionStart) — when this configuration was downloaded from the Fae portal (a `fae-template.json` metadata file exists), it asks Fae whether a newer template version has been published and prints a notice. Fail-quiet: in an authoring checkout or without network it does nothing.
+
 ## Blocking (Will Stop You)
 
 - **Check for Hardcoded Secrets** — No API keys, passwords, tokens in code. **Never disable this.**
