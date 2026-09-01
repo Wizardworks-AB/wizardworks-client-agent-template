@@ -1,0 +1,10 @@
+{
+  "stack": "dotnet",
+  "description": ".NET / C# guardrails — Controller-Service-Repository, DTO-at-boundary, Public IDs, async/await.",
+  "checks": [
+    { "script": "check-public-ids.js", "match": "Controller|Dto" },
+    { "script": "check-dto-usage.js", "match": "Controller" },
+    { "script": "check-async-await.js", "match": "\\.cs$" },
+    { "script": "check-layer-separation.js", "match": "Controller\\.cs$" }
+  ]
+}

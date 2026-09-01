@@ -1,0 +1,9 @@
+{
+  "stack": "react",
+  "description": "React / TypeScript guardrails — immutability, TanStack Query for data fetching, no stray console.log.",
+  "checks": [
+    { "script": "check-console-log.js", "match": "\\.(ts|tsx|js|jsx)$" },
+    { "script": "check-immutability.js", "match": "\\.(ts|tsx)$" },
+    { "script": "check-tanstack-query.js", "match": "components/.*\\.(tsx|ts)$" }
+  ]
+}
