@@ -1,52 +1,50 @@
-# Wizardworks AI Patterns and Practices Gallery
+# AI Patterns and Practices Toolkit
 
 ## Quick Start
 
 ### TL;DR - What Is This?
 
-The **Wizardworks AI Patterns and Practices Gallery** is your intelligent development toolkit. It provides:
+This toolkit is an intelligent development kit for AI-assisted coding. It provides:
 
-- 🎯 **10 AI Agents** - Specialists for planning, coding, testing, security, and deployment
-- 🛠️ **3 Technology Skills** - Deep patterns for .NET, React, and Infrastructure
-- ⚡ **8 Commands** - Quick shortcuts for common workflows (`/tdd-test`, `/code-review`, etc.)
-- 📋 **4 Rules** - Non-negotiable coding and security standards
-- 🔄 **3 Contexts** - Execution environments for dev, review, and research
-- 🛡️ **14 Hooks** - Automated guards preventing problematic code
-- 📚 **3 Working Examples** - Real implementations you can learn from
+- 🎯 **AI Agents** - Specialists for planning, coding, testing, security, and deployment
+- ⚡ **Commands** - Quick shortcuts for common workflows (`/tdd`, `/code-review`, etc.)
+- 📋 **Rules** - Coding and security standards
+- 🔄 **Contexts** - Execution environments for dev, review, and research
+- 🛡️ **Hooks** - Automated guards preventing problematic code
 
-**38 total components** engineered to accelerate development while maintaining Wizardworks quality standards.
+Stack-specific patterns (backend, frontend, infrastructure) are delivered as an optional **stack overlay** you selected at download — the `core` toolkit is stack-neutral and makes no assumption about your language, framework, or cloud.
 
 ### Running Claude Code
 
-**Always use Sonnet for orchestration:**
+**Use Sonnet for orchestration:**
 ```bash
 claude --model sonnet
 ```
 
-Subagents use their own models (Opus for critical tasks). This saves ~40% on tokens while maintaining quality.
+Subagents use their own models (Opus for critical tasks). This saves tokens while maintaining quality.
 
 ---
 
 ## Overview
 
-The **Wizardworks AI Patterns and Practices** gallery is a comprehensive collection of reusable AI agents, skills, commands, rules, and examples designed to accelerate development at Wizardworks. This gallery enables developers to leverage pre-built AI-assisted workflows that enforce company standards, best practices, and architectural patterns across .NET, React, TypeScript, and Infrastructure as Code projects.
+This toolkit is a collection of reusable AI agents, commands, rules, and examples designed to accelerate development. It lets developers leverage pre-built AI-assisted workflows that enforce standards, best practices, and architectural patterns — independent of your technology stack.
 
 ### Purpose
 
-Create a curated gallery of AI patterns and practices for Wizardworks developers to:
+Provide a curated set of AI patterns and practices so your team can:
 
 - 💡 Rapidly implement features following proven architectural patterns
-- ✅ Maintain consistent code quality and standards across the organization
+- ✅ Maintain consistent code quality and standards across projects
 - 🎯 Enforce test-driven development (TDD) and code review best practices
 - 🔒 Ensure security, scalability, and maintainability
-- 🤖 Integrate Claude AI (via Claude Code) directly into development workflows
+- 🤖 Integrate Claude (via Claude Code) directly into development workflows
 - 👥 Enable both individual developers and teams to work efficiently with consistent tooling
 
 ---
 
 ## Why Subagents Save Your Context
 
-This is one of the most valuable aspects of the Wizardworks gallery. Understanding how subagents work helps you write longer, more productive sessions without context bloat.
+This is one of the most valuable aspects of the toolkit. Understanding how subagents work helps you run longer, more productive sessions without context bloat.
 
 ### The Core Concept: Separate Context Windows
 
@@ -165,65 +163,39 @@ YOUR estimated remaining context: ~185K tokens for other work
 
 ---
 
-## Technology Stack
+## Stack Skills (Overlay-Provided)
 
-Wizardworks leverages a modern, scalable technology stack:
+Skills are deep technical reference documentation for a specific technology area (backend, frontend, infrastructure).
 
-### Backend
+**The `core` toolkit ships no stack skill.** Stack skills are provided by the **stack overlay** you selected when you downloaded this toolkit (for example `dotnet`, `react`, or `azure`). If you selected an overlay, its skills appear under `skills/` alongside this guide; if you selected none, the agents fall back to stack-neutral guidance.
 
-- **.NET 10+** (Always LTS ASP.NET Core Web APIs)
-- **Entity Framework Core** (primary ORM for new projects)
-- **Dapper** (optional, for performance-critical scenarios)
-- **SQL Server** or **PostgreSQL** (databases)
-- **Docker** (containerization)
-- **xUnit** + **FluentAssertions** (testing)
+Core does ship one stack-neutral skill: `meeting-capture` — recording a meeting (via the Fae Meeting Recorder bot or a local recording tool), transcribing it, and saving the notes to the knowledge graph.
 
-**Existing Projects**: Follow existing patterns. If a project uses Dapper, continue with Dapper - don't mix ORMs. Consistency within a project matters more than the "new project" standard.
-
-### Frontend
-
-- **React 19+** with **TypeScript 5+** (strict mode)
-- **TanStack Query** (data fetching/caching)
-- **React Router** or **Next.js** (routing)
-- **TanStack Form** (form management)
-- **TanStack Table** (data tables)
-- **Tailwind CSS** (styling)
-- **Vite** or **Next.js** (build tools)
-- **Vitest** + **Playwright** (testing)
-
-### Infrastructure
-
-- **Azure** (cloud platform)
-- **Bicep** (Infrastructure as Code)
-- **Azure DevOps** or **GitHub Actions** (CI/CD)
-- **Docker** + **Container Apps** or **AKS**
-- **Azure SQL Database** or **PostgreSQL Flexible Server**
-- **Azure Key Vault** (secrets management)
-- **Application Insights** (monitoring)
+To add or change stack skills later, re-download with the appropriate overlay selected, or drop your own `skills/<name>/SKILL.md` into the toolkit.
 
 ---
 
 ## Core Concepts
 
-### The Wizardworks Standard (CLAUDE.md)
+### The Standard (CLAUDE.md)
 
-**CLAUDE.md** is the master configuration file that defines how Wizardworks builds software. It establishes:
+**CLAUDE.md** is the master configuration file that defines how the team builds software. It establishes:
 
-- The 7-step mandatory workflow: PLAN → DESIGN → IMPLEMENT → REVIEW → SECURE → VERIFY → DOCUMENT
-- Non-negotiable standards (TDD, 80% coverage, code review, security review)
-- How all 9 agents and 14 hooks work together
+- The 7-step workflow: PLAN → DESIGN → IMPLEMENT → REVIEW → SECURE → VERIFY → DOCUMENT
+- Standards (TDD, coverage targets, code review, security review)
+- How the agents and hooks work together
 
-When you start Claude Code in a Wizardworks project, CLAUDE.md tells it exactly how to work.
+When you start Claude Code in your project, CLAUDE.md tells it exactly how to work.
 
 ### What Are Agents?
 
-**Agents** are specialized AI roles that guide you through complex workflows. They act as Wizardworks team members and enforce company standards.
+**Agents** are specialized AI roles that guide you through complex workflows. They act as team members and enforce your standards.
 
-Each agent now includes a **Hook Integration** section that shows which hooks automatically validate work in that agent's domain. This creates a self-validating workflow where agents and hooks complement each other.
+Each agent includes a **Hook Integration** section that shows which hooks automatically validate work in that agent's domain. This creates a self-validating workflow where agents and hooks complement each other.
 
 ### What Are Skills?
 
-**Skills** are deep technical reference documentation defining patterns and standards for specific technology areas.
+**Skills** are deep technical reference documentation defining patterns and standards for a specific technology area. Stack skills are provided by the stack overlay (see above); core ships the stack-neutral `meeting-capture` skill.
 
 ### What Are Commands?
 
@@ -231,7 +203,7 @@ Each agent now includes a **Hook Integration** section that shows which hooks au
 
 ### What Are Rules?
 
-**Rules** are non-negotiable standards that ensure code quality, security, and consistency across the organization.
+**Rules** are standards that ensure code quality, security, and consistency across projects.
 
 ### What Are Contexts?
 
@@ -243,7 +215,7 @@ Each agent now includes a **Hook Integration** section that shows which hooks au
 
 ### Self-Validating Workflows
 
-**The Wizardworks system is self-validating.** Agents and hooks work together:
+**The system is self-validating.** Agents and hooks work together:
 
 1. **Agents provide guidance** - They help you write code the right way
 2. **Hooks provide enforcement** - They automatically catch mistakes when you Write/Edit files
@@ -256,10 +228,9 @@ You invoke /code-review
 Code Reviewer analyzes your code
         ↓
 Hooks run automatically when you edit files:
-- Check for Hardcoded Secrets
-- Check Database ID Exposure
-- Enforce DTO Usage
-- Layer Separation Check
+- Check for Hardcoded Secrets (universal)
+- Stack-overlay checks, e.g. with the dotnet overlay:
+  Database ID Exposure, DTO Usage, Layer Separation
         ↓
 DOUBLE VALIDATION COMPLETE
 ```
@@ -271,67 +242,67 @@ This means fewer mistakes make it to production - agents catch issues during dev
 ## Folder Organization
 
 ```
-wizardworks-ai-p-and-p/
-├── CLAUDE.md                        # 📜 The Wizardworks Development Standard
-├── agents/                          # 9 AI agents for specific roles (each with Hook Integration)
+.claude/                             # The toolkit (CLAUDE.md sits next to it at the project root)
+├── CONSTITUTION.md                  # 📜 Core, stack-neutral engineering standards
+├── DOC.md                           # This comprehensive guide
+├── settings.json                    # Hook wiring (SessionStart, PreToolUse, PostToolUse)
+├── agents/                          # AI agents for specific roles (each with Hook Integration)
 │   ├── architect.md                 # 🏗️  Software architecture specialist
-│   ├── code-reviewer.md             # 👀 Code quality and standards enforcement
-│   ├── tdd-guide.md                 # ✅ Test-Driven Development guide
-│   ├── planner.md                   # 📋 Feature planning and requirements
-│   ├── security-reviewer.md         # 🔒 Security vulnerability analysis
 │   ├── build-error-resolver.md      # 🔧 Build failure diagnostics
+│   ├── code-reviewer.md             # 👀 Code quality and standards enforcement
+│   ├── doc-updater.md               # 📚 Documentation maintenance
 │   ├── e2e-runner.md                # 🧪 End-to-end test execution
+│   ├── planner.md                   # 📋 Feature planning and requirements
 │   ├── refactor-cleaner.md          # 🧹 Code refactoring assistant
-│   └── doc-updater.md               # 📚 Documentation maintenance
+│   ├── security-reviewer.md         # 🔒 Security vulnerability analysis
+│   ├── tdd-implementer.md           # 🟢 Make failing tests pass (GREEN→REFACTOR)
+│   └── tdd-test-writer.md           # 🔴 Write failing tests first (RED)
 │
-├── skills/                          # 3 deep reference skills
-│   ├── backend-patterns-dotnet/     # .NET architecture patterns
-│   ├── frontend-patterns-react/     # React/TypeScript patterns
-│   └── infrastructure-as-code/      # Bicep and deployment patterns
-│
-├── commands/                        # 8 quick-access commands
-│   ├── tdd.md                       # /tdd workflow
-│   ├── code-review.md               # /code-review workflow
-│   ├── plan.md                      # /plan workflow
-│   ├── security-review.md           # /security-review workflow
+├── commands/                        # Quick-access commands
 │   ├── build-fix.md                 # /build-fix workflow
+│   ├── code-review.md               # /code-review workflow
+│   ├── commit.md                    # /commit workflow
 │   ├── e2e.md                       # /e2e workflow
+│   ├── plan.md                      # /plan workflow
 │   ├── refactor-clean.md            # /refactor-clean workflow
-│   └── update-docs.md               # /update-docs workflow
+│   ├── retrospective.md             # /retrospective workflow
+│   ├── security-review.md           # /security-review workflow
+│   ├── tdd.md                       # /tdd workflow
+│   ├── update-docs.md               # /update-docs workflow
+│   └── update-template.md           # /update-template workflow
 │
-├── rules/                           # 4 non-negotiable standards
+├── rules/                           # Non-negotiable standards
+│   ├── agents-and-commands.md       # Agent/command reference and parallel execution
 │   ├── coding-style.md              # Code style standards
-│   ├── testing.md                   # Testing requirements
+│   ├── fae.md                       # Fae knowledge graph (MCP) usage
+│   ├── git-workflow.md              # Git workflow guidelines
+│   ├── hooks.md                     # What the automated hooks do
 │   ├── security.md                  # Security standards
-│   └── git-workflow.md              # Git workflow guidelines
+│   ├── testing.md                   # Testing requirements
+│   └── workflow.md                  # The 7-step development workflow
 │
-├── contexts/                        # 3 execution environments
+├── contexts/                        # Execution environments
 │   ├── dev.md                       # Development environment
 │   ├── review.md                    # Code review environment
 │   └── research.md                  # Research/exploration environment
 │
-├── hooks/                           # 14 automated quality gates
-│   ├── check-hardcoded-secrets.md   # Prevent secret commits
-│   ├── check-db-id-exposure.md      # Enforce Public ID pattern
-│   ├── check-console-log.md         # Remove debug logging
-│   ├── enforce-dto-usage.md         # Verify DTO compliance
-│   ├── check-async-await.md         # Validate async patterns
-│   ├── check-immutability.md        # Ensure immutability
-│   ├── check-layer-separation.md    # Enforce architecture layers
-│   ├── check-tanstack-query.md      # Verify TanStack Query usage
-│   ├── test-coverage-reminder.md    # Coverage threshold reminder
-│   ├── tdd-workflow-reminder.md     # TDD enforcement
-│   ├── security-review-reminder.md  # Security check reminder
-│   ├── iac-reminder.md              # Infrastructure as Code reminder
-│   ├── docker-config-check.md       # Docker configuration validation
-│   └── code-review-reminder.md      # Code review process reminder
+├── docs/                            # Deep-dive guides
+│   └── tdd-playbook.md              # Full TDD methodology
 │
-├── examples/                        # 3 working implementations
-│   ├── magic-crud-api/              # Full CRUD API example
-│   ├── magic-dashboard/             # React dashboard example
-│   └── infrastructure-deployment/   # IaC deployment examples
+├── hooks/                           # Automated quality gates (Claude Code hooks)
+│   ├── hooks.json                   # Documents the universal ruleset
+│   ├── README.md                    # How the hook system works
+│   ├── scripts/
+│   │   ├── check-secrets.js         # Universal secret scan (blocking)
+│   │   ├── check-template-update.js # SessionStart template-update check
+│   │   ├── dispatch.js              # Hook dispatcher (wired via settings.json)
+│   │   └── (check-*.js)             # Stack-overlay checks, when a stack was selected
+│   └── stacks/                      # <stack>.json check fragments (overlay-provided)
 │
-└── DOC.md                           # This comprehensive guide
+├── plans/                           # Feature plans and decision records
+│
+└── skills/                          # Stack skills — provided by the selected stack overlay
+    └── (absent in core; populated by the dotnet/react/azure overlay)
 ```
 
 ---
@@ -340,21 +311,19 @@ wizardworks-ai-p-and-p/
 
 | Category | Count | Purpose |
 |----------|-------|---------|
-| **CLAUDE.md** | 1 | Master configuration - The Wizardworks Development Standard |
-| **Agents** | 9 | Specialized AI roles (each with Hook Integration) |
-| **Skills** | 3 | Deep technical reference documentation |
-| **Commands** | 8 | Quick-access workflow shortcuts |
-| **Rules** | 4 | Non-negotiable standards and requirements |
+| **CLAUDE.md** | 1 | Master configuration - the development standard |
+| **Agents** | 10 | Specialized AI roles (each with Hook Integration) |
+| **Skills** | Overlay-provided | Deep technical reference (from the stack overlay; none in core) |
+| **Commands** | 11 | Quick-access workflow shortcuts |
+| **Rules** | 8 | Standards and requirements |
 | **Contexts** | 3 | Execution environments with specific rules |
-| **Hooks** | 14 | Automated quality and security gates |
-| **Examples** | 3 | Real-world implementation demonstrations |
-| **TOTAL** | **38** | **Complete self-validating development framework** |
+| **Hooks** | 1 universal + overlay checks + SessionStart update check | Automated quality and security gates |
 
 ---
 
 ## Component Details
 
-### Agents (9 Total)
+### Agents (10 Total)
 
 Agents are specialized AI roles that guide developers through complex workflows. Use them by simply describing your task.
 
@@ -372,14 +341,14 @@ Agents are specialized AI roles that guide developers through complex workflows.
 **Key Responsibilities**:
 - Design system architecture
 - Evaluate technical trade-offs
-- Recommend Wizardworks-aligned patterns
-- Plan infrastructure (Bicep)
+- Recommend patterns aligned with your standards
+- Plan infrastructure
 - Identify scalability bottlenecks
 
 #### 2. 👀 Code Reviewer Agent
 **File**: `agents/code-reviewer.md`
 
-**Role**: Senior code reviewer ensuring quality, security, and Wizardworks standards adherence.
+**Role**: Senior code reviewer ensuring quality, security, and standards adherence.
 
 **When to Use**:
 - After writing code (MUST be used for all changes)
@@ -388,44 +357,52 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - For security validation
 
 **Key Checks**:
-- ✅ Architectural patterns (Controller-Service-Repository)
+- ✅ Architectural patterns (e.g. layered/Controller-Service-Repository)
 - ✅ Public ID usage (never database IDs)
 - ✅ DTO compliance
-- ✅ Test coverage (80%+)
+- ✅ Test coverage targets
 - ✅ Security vulnerabilities
-- ✅ TypeScript strict mode
-- ✅ Async/await patterns
+- ✅ Type safety
+- ✅ Async/concurrency patterns
 
 **Review Levels**:
 - 🔴 **CRITICAL**: Security issues, architecture violations, data safety
 - 🟠 **HIGH**: Code quality, performance, type safety
 - 🟡 **MEDIUM**: Best practices, accessibility, documentation
 
-#### 3. ✅ TDD Guide Agent
-**File**: `agents/tdd-guide.md`
+#### 3. 🔴 TDD Test Writer Agent
+**File**: `agents/tdd-test-writer.md`
 
-**Role**: Test-Driven Development specialist enforcing write-tests-first methodology.
+**Role**: Test-Driven Development specialist writing failing tests FIRST (the RED phase). Invoked by `/tdd` before any implementation code exists.
 
 **When to Use**:
 - Starting new features (PROACTIVELY)
-- Fixing bugs
-- Refactoring code
-- **ANY** time writing new code
-
-**The TDD Cycle**:
-1. 🔴 **RED** - Write failing test
-2. 🟢 **GREEN** - Write minimal implementation
-3. 🔵 **REFACTOR** - Improve code quality
-4. ✅ **VERIFY** - Check 80%+ coverage
+- Fixing bugs (reproduce with a failing test)
+- **ANY** time before writing new code
 
 **Key Responsibilities**:
-- Guide through Red-Green-Refactor cycle
-- Ensure 80%+ test coverage
+- Define expected behavior through failing tests
+- Cover edge cases and error paths before implementation
 - Write comprehensive tests (unit, integration, E2E)
-- Catch edge cases before implementation
-- Support both .NET/C# and TypeScript/React
+- Support your project's language and framework
 
-#### 4. 📋 Planner Agent
+#### 4. 🟢 TDD Implementer Agent
+**File**: `agents/tdd-implementer.md`
+
+**Role**: Test-Driven Development specialist making the failing tests pass (GREEN), then refactoring (REFACTOR). Invoked by `/tdd` after the tests exist.
+
+**The TDD Cycle** (`/tdd` drives all of it):
+1. 🔴 **RED** - Write failing test (tdd-test-writer)
+2. 🟢 **GREEN** - Write minimal implementation (tdd-implementer)
+3. 🔵 **REFACTOR** - Improve code quality (tdd-implementer)
+4. ✅ **VERIFY** - Check coverage target
+
+**Key Responsibilities**:
+- Write minimal code to satisfy the tests — no more
+- Refactor while keeping tests green
+- Ensure coverage targets are met
+
+#### 5. 📋 Planner Agent
 **File**: `agents/planner.md`
 
 **Role**: Feature planning specialist creating detailed requirements and roadmaps.
@@ -444,7 +421,7 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - Implementation timeline
 - API contracts and data models
 
-#### 5. 🔒 Security Reviewer Agent
+#### 6. 🔒 Security Reviewer Agent
 **File**: `agents/security-reviewer.md`
 
 **Role**: Security specialist identifying vulnerabilities and enforcing security standards.
@@ -456,7 +433,7 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - Security audit phases
 
 **Checks**:
-- SQL injection risks
+- Injection risks
 - Hardcoded secrets
 - Input validation
 - HTTPS enforcement
@@ -464,7 +441,7 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - XSS vulnerabilities
 - Security headers
 
-#### 6. 🔧 Build Error Resolver Agent
+#### 7. 🔧 Build Error Resolver Agent
 **File**: `agents/build-error-resolver.md`
 
 **Role**: Build diagnostics specialist fixing compilation and runtime errors.
@@ -483,7 +460,7 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - Build performance optimization
 - Dependency updates
 
-#### 7. 🧪 E2E Runner Agent
+#### 8. 🧪 E2E Runner Agent
 **File**: `agents/e2e-runner.md`
 
 **Role**: End-to-end testing specialist executing and debugging workflows.
@@ -495,14 +472,14 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - Regression testing
 
 **Capabilities**:
-- Execute E2E test suites (Playwright)
+- Execute E2E test suites
 - Debug test failures
 - Verify critical user flows
 - Generate test reports
 - Create new E2E tests
 - Manage test environments
 
-#### 8. 🧹 Refactor Cleaner Agent
+#### 9. 🧹 Refactor Cleaner Agent
 **File**: `agents/refactor-cleaner.md`
 
 **Role**: Code refactoring specialist improving structure without changing behavior.
@@ -521,7 +498,7 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - Improve readability
 - Ensure behavior is maintained
 
-#### 9. 📚 Doc Updater Agent
+#### 10. 📚 Doc Updater Agent
 **File**: `agents/doc-updater.md`
 
 **Role**: Documentation specialist keeping docs synchronized with code.
@@ -542,129 +519,23 @@ Agents are specialized AI roles that guide developers through complex workflows.
 
 ---
 
-### Skills (3 Total)
+### Skills (Overlay-Provided)
 
-Skills define specific technical patterns and standards for different technology areas.
+Skills define technical patterns and standards for a specific technology area — backend, frontend, or infrastructure. They are **not part of the core toolkit**; they are supplied by the stack overlay you selected at download (`dotnet`, `react`, `azure`, etc.).
 
-#### 1. Backend Patterns (.NET/C#)
-**File**: `skills/backend-patterns-dotnet/SKILL.md`
-
-**Covers**:
-- Controller-Service-Repository architecture
-- Entity Framework Core patterns
-- Public ID strategy
-- DTO patterns
-- Dependency injection
-- Docker configuration
-- Testing patterns (xUnit, Moq, FluentAssertions)
-- Performance optimization
-
-**Key Pattern**:
-```csharp
-// Controller (HTTP only)
-[HttpGet("{publicMagicId}")]
-public async Task<IActionResult> Get(string publicMagicId)
-{
-    var result = await _service.GetByPublicIdAsync(publicMagicId);
-    return result == null ? NotFound() : Ok(result);
-}
-
-// Service (Business logic)
-public async Task<MagicDto> GetByPublicIdAsync(string publicMagicId)
-{
-    var magic = await _repository.GetByPublicIdAsync(publicMagicId);
-    return magic != null ? MapToDto(magic) : null;
-}
-
-// Repository (Data access)
-public async Task<Magic?> GetByPublicIdAsync(string publicMagicId)
-{
-    return await _context.Magics
-        .FirstOrDefaultAsync(m => m.PublicMagicId == publicMagicId);
-}
-```
-
-**MANDATORY Patterns**:
-- ❌ Never expose database IDs to clients
-- ✅ Generate unique Public IDs (e.g., "abc123xyz")
-- ✅ Use Public IDs in all API endpoints
-- ✅ Map between IDs in service layer
-
-#### 2. Frontend Patterns (React/TypeScript)
-**File**: `skills/frontend-patterns-react/SKILL.md`
-
-**Covers**:
-- TypeScript strict mode setup
-- TanStack Query patterns
-- TanStack Form patterns
-- TanStack Table patterns
-- Custom hooks
-- Component composition
-- Error boundaries
-- State management (Zustand)
-- Testing patterns
-
-**Key Pattern**:
-```typescript
-// Custom hook
-export function useMagic(publicMagicId: string) {
-  return useQuery({
-    queryKey: ['magic', publicMagicId],
-    queryFn: () => magicService.getByPublicId(publicMagicId),
-    enabled: !!publicMagicId,
-  });
-}
-
-// Component
-export function MagicDetail({ publicMagicId }: Props) {
-  const { data: magic, isLoading, error } = useMagic(publicMagicId);
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-  return <div>{magic?.name}</div>;
-}
-```
-
-**MANDATORY Pattern - Immutability**:
-```typescript
-// ✅ CORRECT: Spread operators
-const updated = { ...magic, name: 'New Name' };
-const list = [...magics, newMagic];
-
-// ❌ WRONG: Direct mutation
-magic.name = 'New Name';  // MUTATION!
-magics.push(newMagic);    // MUTATION!
-```
-
-#### 3. Infrastructure as Code
-**File**: `skills/infrastructure-as-code/SKILL.md`
-
-**Covers**:
-- Bicep templates and modules
-- Docker multi-stage builds
-- Docker Compose for local development
-- Azure DevOps pipelines
-- GitHub Actions workflows
-- Key Vault integration
-- Managed identities
-- Environment-specific configurations
-
-**Key Principle**:
-- ✅ All infrastructure in code (no manual Portal changes)
-- ✅ Separate parameter files per environment
-- ✅ Secrets in Key Vault (never hardcoded)
-- ✅ Managed identities for service authentication
-- ✅ Multi-stage Docker builds
+- If you selected an overlay, its `SKILL.md` files live under `skills/` and the relevant agents will reference them automatically.
+- If you selected no overlay, the agents apply stack-neutral guidance from the rules and contexts instead.
+- You can add your own skill at any time by creating `skills/<name>/SKILL.md`.
 
 ---
 
-### Commands (8 Total)
+### Commands (11 Total)
 
 Commands provide quick-access workflows using slash command syntax.
 
 | Command | Agent | Syntax | When to Use |
 |---------|-------|--------|------------|
-| **`/tdd`** | TDD Guide | `/tdd [implement\|fix\|refactor] [description]` | Starting any code work |
+| **`/tdd`** | TDD Test Writer + TDD Implementer | `/tdd [implement\|fix\|refactor] [description]` | Starting any code work |
 | **`/code-review`** | Code Reviewer | `/code-review` | Code complete, before merge |
 | **`/plan`** | Planner | `/plan [feature description]` | Before implementation starts |
 | **`/security-review`** | Security Reviewer | `/security-review` | Before production deployment |
@@ -672,12 +543,15 @@ Commands provide quick-access workflows using slash command syntax.
 | **`/e2e`** | E2E Runner | `/e2e [run\|debug] [test-name]` | Before releases, verify flows |
 | **`/refactor-clean`** | Refactor Cleaner | `/refactor-clean [description]` | Code smells found |
 | **`/update-docs`** | Doc Updater | `/update-docs` | After major changes |
+| **`/commit`** | — | `/commit` | Validate, document, and commit + push |
+| **`/retrospective`** | — | `/retrospective` | End of session/feature — save learnings |
+| **`/update-template`** | — | `/update-template` | Pull a newer published agent-template version from Fae |
 
 ---
 
-### Rules (4 Total)
+### Rules (8 Total)
 
-Rules define non-negotiable standards that all developers and agents must follow.
+Rules define standards that all developers and agents follow.
 
 #### 1. 📝 Coding Style
 **File**: `rules/coding-style.md`
@@ -688,33 +562,17 @@ Rules define non-negotiable standards that all developers and agents must follow
 - DRY (Don't Repeat Yourself)
 - YAGNI (You Aren't Gonna Need It)
 
-**.NET/C# Standards**:
-- PascalCase: classes, methods, properties
-- camelCase: parameters, local variables
-- Interfaces start with 'I'
-- Async methods end with 'Async'
-- ≤50 lines per method
-- ≤800 lines per file
-- One class per file
-
-**TypeScript/React Standards**:
-- camelCase: variables, functions
-- PascalCase: components, types, interfaces
-- UPPER_SNAKE_CASE: constants
-- ≤200 lines per component
-- ≤400 lines per file
-- Immutability patterns required
-- No `any` types allowed
+Language-specific naming, file-size, and formatting conventions are documented in the rule file and refined by your selected stack overlay.
 
 #### 2. ✅ Testing
 **File**: `rules/testing.md`
 
-**Requirement**: 80%+ test coverage (MANDATORY)
+**Requirement**: Meet the team's coverage target (mandatory)
 
 **Test Types**:
 1. 🔹 **Unit Tests** - Individual functions/methods with mocked dependencies
-2. 🔸 **Integration Tests** - API endpoints with in-memory database
-3. 🔺 **E2E Tests** - Critical user flows (Playwright)
+2. 🔸 **Integration Tests** - API endpoints against a test database
+3. 🔺 **E2E Tests** - Critical user flows
 
 **Coverage is Measured**:
 - ✅ Code execution paths
@@ -726,15 +584,14 @@ Rules define non-negotiable standards that all developers and agents must follow
 **File**: `rules/security.md`
 
 **Non-Negotiable Requirements**:
-- ❌ No hardcoded secrets (use Key Vault)
+- ❌ No hardcoded secrets (use a secret store)
 - ✅ Input validation on all endpoints
-- ✅ SQL injection prevention (parameterized queries)
+- ✅ Injection prevention (parameterized queries)
 - ✅ XSS prevention (sanitization)
 - ✅ HTTPS everywhere
 - ✅ Authentication on all endpoints
 - ✅ Proper authorization (role-based)
 - ❌ Secrets never in logs
-- ✅ Use Azure AD B2C for authentication
 
 #### 4. 🔀 Git Workflow
 **File**: `rules/git-workflow.md`
@@ -759,8 +616,28 @@ Closes #123
 **PR Requirements**:
 - ✅ All tests passing
 - ✅ Code review approval
-- ✅ 80%+ coverage maintained
+- ✅ Coverage target maintained
 - ✅ No merge conflicts
+
+#### 5. 🔁 Workflow
+**File**: `rules/workflow.md`
+
+The mandatory 7-step development workflow: PLAN → DESIGN → IMPLEMENT → REVIEW → SECURE → VERIFY → DOCUMENT, plus the self-validation loop.
+
+#### 6. 🤖 Agents and Commands
+**File**: `rules/agents-and-commands.md`
+
+Reference for the 10 specialist agents and 11 commands, parallel-execution guidance, and agent model selection.
+
+#### 7. 🛡️ Hooks
+**File**: `rules/hooks.md`
+
+What the automated hooks actually do: the universal secret-scan (blocking), stack-overlay checks, and the SessionStart template-update check.
+
+#### 8. 🧠 Fae Knowledge Graph
+**File**: `rules/fae.md`
+
+How to use the shared Fae knowledge graph (MCP): session briefing, auto-save triggers, read/write tools, and graph-first rules.
 
 ---
 
@@ -791,26 +668,37 @@ Contexts define execution environments with specific configurations for differen
 
 ---
 
-### Hooks (14 Total)
+### Hooks
 
-Hooks are automated quality and security gates preventing problematic code from being committed or deployed.
+Hooks are automated quality and security gates. They are **Claude Code hooks** (not git hooks): the wiring ships in `.claude/settings.json` and fires on Claude Code events, executed by `hooks/scripts/dispatch.js`. See `rules/hooks.md` and `hooks/README.md` for details.
 
-| Hook | Trigger | Type | Prevents |
-|------|---------|------|----------|
-| Check Hardcoded Secrets | Pre-commit | 🛑 Blocking | API keys, passwords, tokens |
-| Check DB ID Exposure | Pre-commit | 🛑 Blocking | Direct database IDs in APIs |
-| Check console.log | Pre-commit | 🛑 Blocking | Debug logging in code |
-| Enforce DTO Usage | Pre-commit | 🛑 Blocking | Direct entity returns |
-| Check Async/Await | Pre-commit | ⚠️ Validation | Blocking I/O operations |
-| Check Immutability | Pre-commit | ⚠️ Validation | State mutations |
-| Check Layer Separation | Pre-commit | 🛑 Blocking | CSR pattern violations |
-| Check TanStack Query | Pre-commit | ⚠️ Validation | Direct fetch() calls |
-| Test Coverage Reminder | Pre-commit | ⚠️ Warning | Low coverage (<80%) |
-| TDD Workflow Reminder | Pre-commit | ⚠️ Warning | Skipped TDD process |
-| Security Review Reminder | Pre-push | ⚠️ Warning | Unreviewed security changes |
-| Infrastructure as Code Reminder | Pre-push | ⚠️ Warning | Manual infrastructure changes |
-| Docker Configuration Check | Pre-push | ⚠️ Validation | Unsafe Docker configs |
-| Code Review Reminder | Pre-push | ⚠️ Warning | Unreviewed code changes |
+**Wired events:**
+
+| Event | What runs |
+|-------|-----------|
+| `SessionStart` | Template Update Check — asks Fae whether a newer template version was published |
+| `PreToolUse` (Write/Edit) | `dispatch.js pre` — scans the pending content for hardcoded secrets and 🛑 **blocks the write** on a critical hit |
+| `PostToolUse` (Write/Edit) | `dispatch.js post` — runs the universal secret scan plus any stack-overlay checks; findings are fed back to the agent for immediate fixing |
+
+**Universal check (every download):**
+
+| Check | Type | Prevents |
+|-------|------|----------|
+| Check Hardcoded Secrets | 🛑 Blocking | API keys, passwords, tokens, connection strings |
+
+**Stack-overlay checks** (present only when that stack was selected at download, declared in `hooks/stacks/<stack>.json`):
+
+| Stack | Check | Prevents |
+|-------|-------|----------|
+| dotnet | Check DB ID Exposure | Direct database IDs in APIs |
+| dotnet | Enforce DTO Usage | Direct entity returns from controllers |
+| dotnet | Check Layer Separation | Layer pattern violations |
+| dotnet | Check Async/Await | Blocking I/O patterns |
+| react | Check Immutability | State mutations |
+| react | Check TanStack Query | Ad-hoc/direct fetch calls |
+| react | Check console.log | Debug logging in code |
+
+Stack checks assume specific patterns (DTOs, layered architecture, a particular data-fetching library) — disable the ones that do not match your project by editing `hooks/stacks/<stack>.json`, but always keep secret detection active.
 
 ---
 
@@ -822,14 +710,14 @@ Hooks are automated quality and security gates preventing problematic code from 
 START
   ↓
 1️⃣  PLANNING PHASE
-  /plan implement payment processing with Stripe integration
+  /plan implement payment processing with a third-party provider
   ├─ Feature broken into 5 phases
   ├─ Tasks identified
   └─ Roadmap created
   ↓
 2️⃣  ARCHITECTURE DESIGN
   Ask Architect Agent for system design
-  ├─ Microservice architecture recommended
+  ├─ Architecture recommended
   ├─ Integration patterns defined
   └─ Infrastructure planned
   ↓
@@ -838,11 +726,11 @@ START
   ├─ Write failing test (RED)
   ├─ Write minimal implementation (GREEN)
   ├─ Improve code quality (REFACTOR)
-  └─ Verify 80%+ coverage (VERIFY)
+  └─ Verify coverage target (VERIFY)
   ↓
 4️⃣  SECURITY AUDIT
   /security-review
-  ├─ API key storage verified ✓
+  ├─ Secret storage verified ✓
   ├─ Webhook signatures validated ✓
   ├─ Input validation required (HIGH)
   └─ Rate limiting needed (MEDIUM)
@@ -850,14 +738,14 @@ START
 5️⃣  CODE REVIEW
   /code-review
   ├─ All tests passing ✓
-  ├─ 85%+ coverage maintained ✓
+  ├─ Coverage target maintained ✓
   ├─ DTO patterns followed ✓
   └─ APPROVE - Ready to merge
   ↓
 6️⃣  DOCUMENTATION
   /update-docs
   ├─ API documentation updated
-  ├─ OpenAPI/Swagger generated
+  ├─ API schema generated
   ├─ Integration guides created
   └─ Changelog updated
   ↓
@@ -878,17 +766,17 @@ START: Users reporting login failure on mobile
   ↓
 1️⃣  UNDERSTAND
   Code Reviewer analyzes recent changes
-  └─ Root cause: Strict same-site cookie in Safari
+  └─ Root cause: strict same-site cookie on some browsers
   ↓
 2️⃣  TEST FIRST
   /tdd fix authentication on mobile devices
-  ├─ Write test for Safari authentication
+  ├─ Write test for the failing authentication path
   └─ Test fails (reproduces bug)
   ↓
 3️⃣  FIX
   Implement minimal fix
-  ├─ Change SameSite from Strict to Lax
-  ├─ Maintain SecurePolicy = Always
+  ├─ Adjust SameSite policy
+  ├─ Keep secure/HTTPS-only policy
   └─ Test now passes
   ↓
 4️⃣  REVIEW & VERIFY
@@ -956,14 +844,14 @@ claude --model sonnet
 **Building a new feature?**
 1. `/plan` describe your feature
 2. Ask Architect for system design
-3. `/tdd-test feature` → `/tdd-implement feature`
+3. `/tdd feature` (tests first, then implementation)
 4. `/code-review` + `/security-review` (parallel)
 5. `/update-docs`
 6. Merge to main
 
 **Fixing a bug?**
 1. Ask Code Reviewer to analyze
-2. `/tdd-test bug` → `/tdd-implement bug`
+2. `/tdd bug` (reproduce with a failing test, then fix)
 3. `/e2e run critical-flows`
 4. `/code-review`
 5. Merge to main
@@ -976,7 +864,7 @@ claude --model sonnet
 
 **Before ANY deployment:**
 1. ✅ `/security-review`
-2. ✅ 80%+ test coverage
+2. ✅ Coverage target met
 3. ✅ `/e2e run all`
 4. ✅ `/code-review` approval
 5. ✅ `/update-docs`
@@ -987,20 +875,13 @@ claude --model sonnet
 
 ### Setting Up in Your Project
 
-1. **Copy the gallery**:
-   ```bash
-   cp -r wizardworks-ai-p-and-p your-project/
-   ```
+1. **Copy the toolkit** into your project (or download it via the portal with your chosen stack overlay).
 
-2. **Configure agents** in `.claude-code.yml`
+2. **Configure agents** in your Claude Code settings.
 
-3. **Set up git hooks**:
-   ```bash
-   cp wizardworks-ai-p-and-p/hooks/* .git/hooks/
-   chmod +x .git/hooks/*
-   ```
+3. **Hooks work out of the box** — they are Claude Code hooks wired via the shipped `.claude/settings.json` (not git hooks; nothing to copy into `.git/hooks/`). Requires Node 18+ on PATH.
 
-4. **Configure CI/CD** to enforce rules
+4. **Configure CI/CD** to enforce rules.
 
 ### Using Commands
 
@@ -1040,7 +921,8 @@ claude --model sonnet
 |-------|--------------|------------|---------|
 | **Architect** | System design | Planning, design decisions | Direct invocation |
 | **Planner** | Feature breakdown | Before implementation | `/plan` |
-| **TDD Guide** | Test-first development | Starting any code | `/tdd` |
+| **TDD Test Writer** | Failing tests first (RED) | Starting any code | `/tdd` |
+| **TDD Implementer** | Make tests pass (GREEN→REFACTOR) | After the failing tests exist | `/tdd` |
 | **Code Reviewer** | Quality assurance | Code complete | `/code-review` |
 | **Security Reviewer** | Vulnerability detection | Before production | `/security-review` |
 | **Build Error Resolver** | Build diagnostics | Build fails | `/build-fix` |
@@ -1050,27 +932,23 @@ claude --model sonnet
 
 ### Skill Reference
 
-| Skill | Technology | Key Patterns | When to Use |
-|-------|-----------|-------------|------------|
-| Backend Patterns | .NET/C# | CSR, Public IDs, DTOs, EF Core | Building .NET APIs |
-| Frontend Patterns | React/TypeScript | TanStack, Hooks, Immutability | Building React apps |
-| Infrastructure | Azure/Bicep | Bicep, Docker, CI/CD | Deploying infrastructure |
+Stack skills are provided by the overlay you selected at download. The exact skills available depend on that overlay (for example a backend, frontend, or infrastructure skill). If no overlay was selected, no stack skills are present and the agents rely on stack-neutral rules and contexts.
 
 ### Rule Enforcement
 
 | Rule | Standard | Measured By | When Checked |
 |------|----------|-------------|-------------|
-| Coding Style | Code conventions | Code Reviewer | Pre-commit, Code Review |
-| Testing | 80%+ coverage | CI/CD, Code Reviewer | Pre-commit, Pre-push |
-| Security | No hardcoded secrets | Hooks, Security Reviewer | Pre-commit, Pre-push |
-| Git Workflow | Conventional commits | Hooks, CI/CD | Pre-commit |
+| Coding Style | Code conventions | Code Reviewer | Code Review |
+| Testing | Coverage target | CI/CD, Code Reviewer | Before commit, CI/CD |
+| Security | No hardcoded secrets | Hooks, Security Reviewer | On every write/edit (hook), Security Review |
+| Git Workflow | Conventional commits | Code Reviewer, CI/CD | Before commit, CI/CD |
 
 ---
 
 ## FAQ
 
-**Q: Why is 80% test coverage required?**
-A: It's the practical minimum that ensures critical paths are tested, reducing production bugs by 85%.
+**Q: Why require a test coverage target?**
+A: A coverage target ensures critical paths are tested, reducing production bugs.
 
 **Q: Can I skip TDD and write tests later?**
 A: No. TDD is mandatory. Tests must be written FIRST. No exceptions.
@@ -1081,11 +959,11 @@ A: Run `/build-fix` - the Build Error Resolver agent will diagnose and suggest f
 **Q: How do I handle database IDs?**
 A: Never expose them. Use Public IDs instead (unique, obfuscated identifiers like "abc123xyz").
 
-**Q: Can I use Redux instead of Zustand?**
-A: Zustand is the standard. Redux requires team lead approval for very large state requirements.
+**Q: Where do stack-specific patterns come from?**
+A: From the stack overlay you selected at download (e.g. `dotnet`, `react`, `azure`). The core toolkit is stack-neutral.
 
 **Q: What if I disagree with a pattern?**
-A: Discuss with your team lead and the Architect agent. Document your proposal. Changes require consensus.
+A: Discuss with your team and the Architect agent. Document your proposal. Changes require consensus.
 
 ---
 
@@ -1094,29 +972,20 @@ A: Discuss with your team lead and the Architect agent. Document your proposal. 
 ### "My commit is blocked by a hook"
 
 **Hardcoded secrets?**
-```csharp
-// Store in Key Vault instead
-var secret = await keyVault.GetSecretAsync("my-secret");
-```
+Move the value into your secret store or environment configuration and reference it at runtime instead of embedding it in source.
 
 **Database ID exposure?**
-```csharp
-// Use Public IDs
-public async Task<MagicDto> GetByPublicId(string publicId)
-```
+Expose Public IDs (opaque identifiers) in your API surface rather than internal database IDs.
 
 **console.log found?**
-```typescript
-// Use logging service
-logger.debug("Message", { context });
-```
+Replace ad-hoc debug output with your project's logging facility.
 
 ### "Code quality metrics seem low"
 
 1. Run `/code-review` for detailed feedback
 2. Address CRITICAL and HIGH priority items first
 3. Use `/refactor-clean` to improve structure
-4. Ensure 80%+ test coverage
+4. Ensure your coverage target is met
 
 ### "Build pipeline is failing"
 
@@ -1128,57 +997,33 @@ Run `/build-fix` and follow the diagnostics:
 
 ---
 
-## Performance & Impact
-
-### Measured Improvements
-
-| Metric | Improvement | Result |
-|--------|-------------|--------|
-| Production bugs | -73% | Fewer runtime issues |
-| Feature delivery | +35% faster | Quicker releases |
-| Code review time | -40% | More efficient feedback |
-| Test coverage | 85%+ maintained | Consistent quality |
-| Developer onboarding | -50% (2 weeks → 5 days) | Faster productivity |
-| Security vulnerabilities | -95% | Better compliance |
-
----
-
 ## Next Steps
 
 1. ✅ **Read this guide** - Understand the complete system
-2. ✅ **Review your technology skill** - Backend, Frontend, or Infrastructure
-3. ✅ **Study the examples** - See real implementations
-4. ✅ **Start your first task** - Use `/plan` and `/tdd`
-5. ✅ **Follow the workflows** - Let agents guide you
-6. ✅ **Use commands daily** - Make them automatic
-7. ✅ **Trust the hooks** - Automation protects quality
-8. ✅ **Contribute feedback** - Help improve the gallery
+2. ✅ **Review your stack overlay's skills** (if you selected one)
+3. ✅ **Start your first task** - Use `/plan` and `/tdd`
+4. ✅ **Follow the workflows** - Let agents guide you
+5. ✅ **Use commands daily** - Make them automatic
+6. ✅ **Trust the hooks** - Automation protects quality
+7. ✅ **Contribute feedback** - Help improve the toolkit
 
 ---
 
 ## Summary
 
-**Wizardworks AI Patterns and Practices Gallery** is your complete self-validating development toolkit:
+This toolkit is a complete self-validating development kit:
 
 | Component | Count | Benefit |
 |-----------|-------|---------|
-| **CLAUDE.md** | 1 | The Wizardworks Development Standard |
-| **Agents** | 9 | Expert guidance (each with Hook Integration) |
-| **Skills** | 3 | Deep technical reference |
-| **Commands** | 8 | Quick workflow shortcuts |
-| **Rules** | 4 | Non-negotiable standards |
+| **CLAUDE.md** | 1 | The development standard |
+| **Agents** | 10 | Expert guidance (each with Hook Integration) |
+| **Skills** | Overlay-provided | Deep technical reference (from the stack overlay) |
+| **Commands** | 11 | Quick workflow shortcuts |
+| **Rules** | 8 | Standards |
 | **Contexts** | 3 | Environment-specific rules |
-| **Hooks** | 14 | Automated safety gates |
-| **Examples** | 3 | Real-world implementations |
+| **Hooks** | 1 universal + overlay checks + SessionStart update check | Automated safety gates |
 
 **CLAUDE.md defines the standard. Agents guide you. Hooks enforce it. Deliver features confidently.**
-
----
-
-**Last Updated**: 2026-01-23
-**Version**: 2.0
-**Owner**: Wizardworks Engineering
-**Total Components**: 38 (1 CLAUDE.md, 9 Agents with Hook Integration, 3 Skills, 8 Commands, 4 Rules, 3 Contexts, 14 Hooks)
 
 ---
 
@@ -1188,10 +1033,7 @@ Run `/build-fix` and follow the diagnostics:
 - **The Standard?** See [CLAUDE.md](CLAUDE.md) - the mandatory workflow
 - **Design questions?** Ask the Architect agent
 - **Code questions?** Ask the Code Reviewer agent
-- **Getting started?** Review examples/ folder
-- **Learning patterns?** Reference the relevant skill
+- **Learning stack patterns?** Reference the skills provided by your stack overlay
 - **Hook details?** Each agent has a Hook Integration section showing relevant hooks
 
-Remember: **This gallery exists to accelerate your development while maintaining the highest standards of quality, security, and scalability.**
-
-Use it. Learn from it. Contribute to it. **Together, we build better software at Wizardworks.**
+Remember: this toolkit exists to accelerate your development while maintaining high standards of quality, security, and scalability.
