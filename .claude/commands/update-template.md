@@ -46,8 +46,14 @@ and customisations are never touched.
    - **Touch nothing else.** Any file not in `changedFiles`/`removedPaths` is user-owned — leave it
      exactly as-is. Never write outside the paths the tool returned.
 
-6. **Report** — summarise what was written/removed and the new version. Suggest the user review the
-   diff (`git diff`) before committing.
+6. **Commit** — if the repository uses git, `git add` the written/removed paths (plus
+   `fae-template.json`) and commit them after the user has reviewed the diff. Template files left
+   uncommitted exist only in this checkout's working tree: git worktrees — created by `/feature`
+   step 0, and used by some agent harnesses for whole sessions — materialize only **tracked**
+   files, so an agent working in one silently loses any rule, hook or command that was never
+   committed.
+
+7. **Report** — summarise what was written/removed/committed and the new version.
 
 ## Guardrails
 

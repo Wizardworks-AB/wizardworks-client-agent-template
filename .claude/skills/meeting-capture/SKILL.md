@@ -60,6 +60,8 @@ curl -s -X POST "https://api.elevenlabs.io/v1/speech-to-text" \
 
 The response contains the full text plus word-level segments with speaker labels. Diarization labels speakers acoustically (`speaker_0`, `speaker_1`, …) — map them to names from context (who opened the meeting, who was addressed by name) and say so when a mapping is a guess.
 
+Then produce a readable transcript, `<name>.transcript.md`: one paragraph per speaker turn, prefixed with `[mm:ss] <speaker>`, using the mapped names (keep `speaker_n` where the mapping is a guess). Generate it from the JSON with a small script — never retype the transcript by hand; a one-hour meeting is thousands of words. Keep `transcription.json` as well; it is the source of the readable version.
+
 ## Meeting notes
 
 Write the notes from the transcript, structured as:
@@ -76,8 +78,13 @@ Stick to the transcript. Do not upgrade a suggestion into a decision or a musing
 
 This is the step that makes the meeting exist beyond this session. Per `rules/fae.md`:
 
-1. `remember("fact", "Meeting — <topic> (<date>)", <the full notes — not a file reference>)`
-2. For every concrete decision made in the meeting: `decide(decision, rationale)` — one call per decision.
-3. New people, companies, or systems that came up: `remember("entity", ...)`.
+1. `remember("fact", "Meeting — <topic> (<date>)", <the full notes — not a file reference>)`. The result ends with `(id: <nodeId>)` — that is the **meeting node**; keep the id for the next step.
+2. **Attach the full transcript to the meeting node.** The notes are a summary; the transcript is the source, and it must be reachable from the graph, not only from the user's disk. Per the *File Attachments* section of `rules/fae.md`, never paste transcript content into a tool call — request an upload URL and stream the file from the shell:
+   1. `request_attachment_upload(<meetingNodeId>, "<topic>-<date>.transcript.md", "text/markdown", "Full transcript")`, then run the returned curl command with `<name>.transcript.md` as the file.
+   2. `request_attachment_upload(<meetingNodeId>, "<topic>-<date>.transcription.json", "application/json", "Raw transcription (ElevenLabs, diarized)")`, then run the returned curl command with `transcription.json` as the file.
 
-Then deliver the notes to the user in whatever form they asked for (file, message, summary).
+   Each URL is single-use and expires after 15 minutes — if a curl fails, request a new URL for that file and retry; do not report the meeting as saved while either upload is missing. If the Fae Meeting Recorder delivered the transcript, attach that file the same way (one upload, whatever format it arrived in).
+3. For every concrete decision made in the meeting: `decide(decision, rationale, relatedTo: [<meetingNodeId>])` — one call per decision.
+4. New people, companies, or systems that came up: `remember("entity", ...)`.
+
+Then deliver the notes to the user in whatever form they asked for (file, message, summary), and tell them the transcript is attached to the meeting node. Only after both uploads succeeded may the local audio and transcript files be deleted, if the user wants them gone.

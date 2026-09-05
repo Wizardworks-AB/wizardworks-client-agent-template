@@ -169,7 +169,7 @@ Skills are deep technical reference documentation for a specific technology area
 
 **The `core` toolkit ships no stack skill.** Stack skills are provided by the **stack overlay** you selected when you downloaded this toolkit (for example `dotnet`, `react`, or `azure`). If you selected an overlay, its skills appear under `skills/` alongside this guide; if you selected none, the agents fall back to stack-neutral guidance.
 
-Core does ship one stack-neutral skill: `meeting-capture` — recording a meeting (via the Fae Meeting Recorder bot or a local recording tool), transcribing it, and saving the notes to the knowledge graph.
+Core does ship one stack-neutral skill: `meeting-capture` — recording a meeting (via the Fae Meeting Recorder bot or a local recording tool), transcribing it, and saving the notes to the knowledge graph with the full transcript attached to the meeting node.
 
 To add or change stack skills later, re-download with the appropriate overlay selected, or drop your own `skills/<name>/SKILL.md` into the toolkit.
 
