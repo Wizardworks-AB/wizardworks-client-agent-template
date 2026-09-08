@@ -1,0 +1,7 @@
+{
+  "_comment": "The universal, stack-independent PostToolUse checks. Single source of truth: dispatch.js loads this at runtime and packaging/build-packages.mjs reads it at build time to assert every listed script is actually delivered by each variant that ships a dispatcher. Keep it plain data — no code, no comments beyond this key — so neither side has to parse source. 'match' is a JS regex tested against the file path; null means always run.",
+  "checks": [
+    { "script": "check-secrets.js", "match": null },
+    { "script": "check-worktree.js", "match": null }
+  ]
+}

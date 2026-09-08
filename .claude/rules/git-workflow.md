@@ -1,6 +1,6 @@
-# Wizardworks Git Workflow
+# Git Workflow
 
-**MANDATORY**: All Wizardworks developers and AI agents must follow this Git workflow.
+**MANDATORY**: All developers and AI agents on this project must follow this Git workflow.
 
 ## Commit Message Format
 
@@ -49,7 +49,7 @@ wip: stuff
 ```
 feat: implement semantic search for magic items
 
-Add TanStack Query hooks for magic search with debouncing.
+Add data-fetching hooks for magic search with debouncing.
 Integrate with OpenAI embeddings API for semantic similarity.
 Include fallback to substring search when vector search unavailable.
 
@@ -79,6 +79,27 @@ update
 fix-stuff
 temp-branch
 ```
+
+## Work in a Worktree, Not the Shared Checkout
+
+Feature work belongs in a dedicated `git worktree` on its own branch — never in the shared
+main checkout. Concurrent agent sessions use that checkout, and uncommitted work there is
+lost when another session stashes or switches branches.
+
+```bash
+git worktree add ../<repo>-<feature-slug> -b feature/<feature-slug> main
+```
+
+**Commit any applied-but-untracked agent template files first.** A worktree materializes
+only *tracked* files, so an "applied but uncommitted" template (rules, hooks, commands,
+`fae-template.json`) silently disappears in the new worktree and the session there loses
+its guardrails. Gitignored files — `.claude/settings.local.json`, `.env` and friends — do
+not materialize either, so re-approve the permission scope in the new worktree.
+
+Remove it with `git worktree remove` once the work is merged or abandoned.
+
+On Claude Code downloads the **Worktree Guard** hook warns (never blocks) when source is
+written in the main checkout on a default branch; see `rules/hooks.md`.
 
 ## Branching Strategy
 
@@ -137,7 +158,7 @@ When creating PRs:
    ## Summary
    - Add semantic search functionality for magic items
    - Integrate OpenAI embeddings API
-   - Add TanStack Query hooks with debouncing
+   - Add data-fetching hooks with debouncing
 
    ## Changes
    - New endpoint: `GET /api/magic/search?q={query}`
@@ -178,45 +199,19 @@ Before committing:
 - [ ] No console.log or debug statements
 - [ ] No commented-out code
 - [ ] No hardcoded secrets
-- [ ] Code follows Wizardworks style guide
+- [ ] Code follows the project style guide
 - [ ] Public IDs used (not database IDs)
 - [ ] DTOs used for API boundaries
 - [ ] Linter passes
 
 ### Run Pre-Commit Checks
 
-**For .NET:**
-```bash
-# Build
-dotnet build
+Run your stack's build, test, lint, format, and dependency-vulnerability commands before every commit. The exact commands depend on your stack — see the stack overlay for the concrete invocations. In general, before committing you should:
 
-# Run tests
-dotnet test
-
-# Format code
-dotnet format
-
-# Check for security issues
-dotnet list package --vulnerable
-```
-
-**For TypeScript:**
-```bash
-# Build
-pnpm build
-
-# Run tests
-pnpm test
-
-# Lint
-pnpm lint
-
-# Type check
-pnpm type-check
-
-# Format
-pnpm format
-```
+- Build the project and confirm it compiles cleanly
+- Run the full test suite and confirm it passes
+- Run the linter and formatter
+- Scan dependencies for known vulnerabilities
 
 ## Feature Implementation Workflow
 
@@ -226,7 +221,7 @@ pnpm format
 - Identify dependencies and risks
 
 ### 2. TDD Approach (Mandatory)
-1. Use **tdd-guide** agent
+1. Follow the TDD workflow (in Claude Code: `/tdd`, which runs the **tdd-test-writer** and **tdd-implementer** agents)
 2. Write test first (RED)
 3. Run test - it should FAIL
 4. Write minimal implementation (GREEN)
@@ -269,7 +264,7 @@ gh pr create --title "Add magic search functionality" \
 EOF
 )"
 
-# Or create manually in GitHub/Azure DevOps
+# Or create manually in your source-hosting / PM tool
 ```
 
 ## Git Best Practices
@@ -376,7 +371,7 @@ git status  # See conflicted files
 # >>>>>>> feature-branch
 
 # After resolving
-git add resolved-file.cs
+git add resolved-file
 
 # Continue merge/rebase
 git merge --continue
@@ -394,8 +389,8 @@ git rebase --continue
 
 echo "Running pre-commit checks..."
 
-# Run tests
-dotnet test
+# Run your stack's test command (see the stack overlay)
+<your-test-command>
 if [ $? -ne 0 ]; then
   echo "Tests failed. Commit aborted."
   exit 1
@@ -419,15 +414,15 @@ exit 0
 
 echo "Running pre-push checks..."
 
-# Run build
-dotnet build
+# Run your stack's build command (see the stack overlay)
+<your-build-command>
 if [ $? -ne 0 ]; then
   echo "Build failed. Push aborted."
   exit 1
 fi
 
-# Run tests
-dotnet test
+# Run your stack's test command (see the stack overlay)
+<your-test-command>
 if [ $? -ne 0 ]; then
   echo "Tests failed. Push aborted."
   exit 1
@@ -444,7 +439,7 @@ exit 0
 ```bash
 # Set user name and email
 git config --global user.name "Your Name"
-git config --global user.email "your.email@wizardworks.com"
+git config --global user.email "your.email@example.com"
 
 # Set default branch name
 git config --global init.defaultBranch main
@@ -466,66 +461,30 @@ git config --global alias.lg "log --graph --oneline --all"
 
 ## .gitignore Best Practices
 
-### .NET
+Always ignore the artifacts your stack generates and anything that could leak secrets. The specific patterns depend on your stack (see the stack overlay), but every `.gitignore` should cover:
+
+- Build output and compiled artifacts
+- Dependency directories
+- Test coverage reports
+- Local environment / secrets files (e.g. `.env`, `.env.local`, and any local config that holds credentials)
+- Editor / IDE-specific files
 
 ```gitignore
-## Build results
-bin/
-obj/
-[Dd]ebug/
-[Rr]elease/
-
-## User-specific files
-*.user
-*.userosscache
-*.suo
-
-## Test Coverage
-coverage/
-*.opencover.xml
-
-## Secrets
-appsettings.Development.json
-appsettings.*.json
-!appsettings.json
-.env
-.env.local
-secrets.json
-```
-
-### TypeScript/React
-
-```gitignore
-## Dependencies
-node_modules/
-.pnp/
-.pnp.js
-
-## Build
-dist/
-build/
-.next/
-.vite/
-
-## Testing
-coverage/
-.vitest/
-
-## Environment
+## Secrets — never commit these
 .env
 .env.local
 .env.*.local
 
-## IDE
+## Editor / IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 ```
 
-## Task Persistence (Experimental)
+## Task Persistence (Claude Code only — Experimental)
 
-> **Note:** This workflow is experimental and works best for large projects with many features running in parallel.
+> **Note:** This section applies to Claude Code only — other runtimes (Codex, generic) have no equivalent mechanism. The workflow is experimental and works best for large projects with many features running in parallel.
 
 By default, Claude Code tasks are session-local and cleared when the context compacts or you run `/clear`. For long-running feature work, you can persist tasks across context clears using the `CLAUDE_CODE_TASK_LIST_ID` environment variable.
 
@@ -582,7 +541,7 @@ Plans are the source of truth. Tasks are the execution tracker.
 
 ## Documenting Changes
 
-Wizardworks uses two complementary documentation approaches:
+This project uses two complementary documentation approaches:
 
 ### CHANGELOG.md (For Humans)
 
@@ -703,18 +662,18 @@ git merge --no-ff release/v1.2.0
 git branch -d release/v1.2.0
 ```
 
-## Wizardworks-Specific Git Rules
+## Git Rules
 
 ### Never Commit
 - Database IDs in test data (use Public IDs)
 - Connection strings
 - API keys or secrets
 - Large binary files without Git LFS
-- `node_modules/` or `bin/obj/`
+- Build output and dependency directories
 
 ### Always Commit
-- Lock files (package-lock.json, packages.lock.json, pnpm-lock.yaml)
-- Bicep files and parameter templates
+- Dependency lock files
+- Infrastructure-as-code and parameter templates
 - CI/CD pipeline configurations
 - README and documentation
 
@@ -726,4 +685,4 @@ git branch -d release/v1.2.0
   - All tests passing
   - 80%+ coverage maintained
 
-**Remember**: Git is our single source of truth. Follow these workflows rigorously to maintain code quality and team collaboration.
+**Remember**: Git is the single source of truth. Follow these workflows rigorously to maintain code quality and team collaboration.

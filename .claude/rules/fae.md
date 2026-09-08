@@ -4,7 +4,7 @@ This agent is connected to the Fae knowledge graph via Remindr MCP. The knowledg
 
 ## Configuration
 
-The MCP server is configured in `.mcp.json` with `X-Tenant-Id` and `X-Default-Project` headers. This means you **do not need to pass `project`** on every tool call — it resolves automatically from the header. Only pass `project` if you need to work with a different project than the default.
+The MCP server is configured in the MCP config file your variant ships — `.mcp.json` (claude-code), `fae-mcp-config.toml` (codex), or `fae-mcp.json` (generic) — with `X-Organization-Id` and `X-Default-Project` headers. This means you **do not need to pass `project`** on every tool call — it resolves automatically from the header. Only pass `project` if you need to work with a different project than the default.
 
 ## Session Start
 
@@ -60,6 +60,15 @@ This is not optional. If you committed code or made a decision without saving to
 - Something is blocking progress? → `block(description)`
 - Blocker resolved? → `resolve(nodeId, resolution)`
 
+## Worklog — Time Reporting Is Separate From Knowledge
+
+`record_worklog(summary)` feeds the USER'S TIME REPORTING (Timekeeper), not the knowledge graph. The platform already tracks WHEN you worked (session windows from your MCP traffic — automatic, survives crash/compaction//clear); the summary adds WHAT the session's work was about, in your words.
+
+- Call `record_worklog` with 1-3 English sentences when a work session wraps up, before context compaction, and after long stretches of work. The latest call replaces the previous summary for the current window — always summarize the WHOLE session so far.
+- A Stop-hook reminds you when too long has passed unsummarized; complying resets the reminder. You (or the user) can also log on demand any time with the `/report-worklog` command — do this before `/clear` or quitting so the session's tail isn't lost.
+- Do NOT route knowledge through the worklog (use `remember`/`decide`/`propose`) and do NOT write activity noise into the graph to "improve time reports" — the two streams are separate by design.
+- Known limitation: session windows are derived from your MCP traffic, so long stretches of purely local work under-count. When that happens, call `record_worklog` with explicit `startedAt`/`endedAt` for the stretch — Timekeeper flags such days as "low coverage — review" in the report's audit trail.
+
 ## Relationships Between Nodes
 
 You do **not** need to create relationships manually. They are created automatically:
@@ -102,6 +111,16 @@ Every time you create substantive content (plans, specs, analysis), store the **
 | `ask_question` | `question`, `context?`, `project?` | Record an open question. |
 | `answer_question` | `questionId`, `answeringNodeId` | Answer a question (`answered_by` edge). |
 | `expire_edge` | `edgeId`, `reason?` | End a relationship's validity (temporal close) — NOT a delete; history is preserved. |
+| `add_source` | `nodeId`, `type` (`url/commit/file/document`), `repository?`, `path?`, `ref?`, `url?`, `label?` | Attach a source reference (provenance) to a node. Metadata only — never file content. |
+| `request_attachment_upload` | `nodeId`, `fileName`, `contentType`, `label?` | Get a single-use upload URL for attaching an actual file (PDF, transcript, image) to a node. |
+
+## File Attachments — Never Through Tool Calls
+
+To attach a file to a node, **never** read the file into context or base64-encode it into a tool call — tool arguments are model output, so a 1 MB file costs hundreds of thousands of tokens. Instead:
+
+1. Call `request_attachment_upload(nodeId, fileName, contentType)` — it validates your access and returns a single-use upload URL (expires in 15 minutes).
+2. Run the returned curl command from your shell: `curl -sS --fail-with-body -T "<path-to-file>" "<url>"`. The file streams directly to private storage and is registered as an attachment source on the node.
+3. If the upload fails, request a new URL — each one is single-use.
 
 ## Node Types for `remember()`
 
@@ -146,6 +165,8 @@ Edges carry temporal validity (`valid_from` / `valid_until`). **Default queries 
 - **ALWAYS** save gotchas immediately with `remember("gotcha", title, content)`.
 - **ALWAYS** document blockers immediately with `block()` — include `urgency`.
 - **ALWAYS** search the graph with `context()` before asking the user any question about the project. The graph owns context; assume it knows before assuming it doesn't.
+- **NEVER** write secrets or personal data into the graph — no credentials, tokens, API keys, connection strings, or PII. The graph is a shared, hosted service: everything written to it is persisted, embedded and searchable by every future session. When a blocker was cleared by a credential, record that it was supplied and where it is stored (a secret-manager reference), never the value.
 - **ALWAYS** communicate with the graph in English — both writes (`remember`, `decide`, `block`, `resolve`) and reads (`context`, `why`). Keep verbatim fragments (names, identifiers, quotes) in original form.
 - **NEVER** make decisions that contradict existing ones without recording a new `decide()` with `supersedes` pointing to the old decision's nodeId.
+- **NEVER** base64-encode a file through a tool call. Attach files with `request_attachment_upload` + the returned curl command (see File Attachments above).
 - **PREFER** `context(query)` over re-discovering knowledge that may already exist in the graph.

@@ -1,7 +1,7 @@
 ---
 name: retrospective
 description: Run /insight and save learnings to memory for continuous improvement
-usage: /retrospective
+
 ---
 
 # Retrospective Command
@@ -97,7 +97,7 @@ Recommend concrete changes:
 ### Summary
 - Implemented user registration (3 hours)
 - Fixed 2 test failures related to async timing
-- Encountered EF Core migration issue, resolved by regenerating
+- Encountered a database migration issue, resolved by regenerating
 
 ### Patterns Identified
 
@@ -111,13 +111,13 @@ Building the form component before the API endpoint gave faster feedback.
 → Saved to memory: "Frontend mockdata first, then wire up backend"
 
 #### Wasted effort: Wrong migration approach
-Tried to modify existing migration instead of creating new one. Wasted 20 min.
-→ Saved to memory: "Never modify existing EF migrations, always create new"
+Tried to modify an existing migration instead of creating a new one. Wasted 20 min.
+→ Saved to memory: "Never modify existing migrations, always create new"
 
 ### Suggested Improvements
 1. Add async test example to TDD playbook
 2. Document frontend-first approach in New-Feature workflow
-3. Add EF migration warning to CLAUDE.md
+3. Add migration warning to CLAUDE.md
 ```
 
 ## Related
