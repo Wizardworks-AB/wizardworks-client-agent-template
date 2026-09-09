@@ -35,7 +35,7 @@ a choice with concrete options**.
 4. **Recommend one.** Put it first and mark it `(Recommended)`. You have the context; say
    what you would do. A list with no recommendation pushes your judgement onto the user.
 5. **Batch your questions.** Ask everything you need in one pass rather than drip-feeding
-   — see the human-blocker queue in `commands/feature.md` §B, which exists for this.
+   — see "Never stall on a human" in `commands/feature.md`, which exists for this.
 6. **Say what is irreversible.** If an option publishes, deploys, merges, pushes, deletes,
    costs money, or is otherwise hard to undo, put that in the option's description.
 

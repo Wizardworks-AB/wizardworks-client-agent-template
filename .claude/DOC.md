@@ -264,7 +264,7 @@ This means fewer mistakes make it to production - agents catch issues during dev
 │   ├── commit.md                    # /commit workflow
 │   ├── e2e.md                       # /e2e workflow
 │   ├── feature.md                   # /feature end-to-end feature flow
-│   ├── feature-fast.md              # /feature-fast lean lane for small changes
+│   ├── harden.md                    # /harden deliberate hardening pass
 │   ├── plan.md                      # /plan workflow
 │   ├── refactor-clean.md            # /refactor-clean workflow
 │   ├── retrospective.md             # /retrospective workflow
@@ -276,6 +276,7 @@ This means fewer mistakes make it to production - agents catch issues during dev
 ├── rules/                           # Non-negotiable standards
 │   ├── agents-and-commands.md       # Agent/command reference and parallel execution
 │   ├── asking-the-user.md           # How to ask the user anything — options, never prose
+│   ├── simplicity.md                # Less code is better code — build what the criteria require
 │   ├── coding-style.md              # Code style standards
 │   ├── fae.md                       # Fae knowledge graph (MCP) usage
 │   ├── git-workflow.md              # Git workflow guidelines
@@ -539,8 +540,8 @@ Commands provide quick-access workflows using slash command syntax.
 
 | Command | Agent | Syntax | When to Use |
 |---------|-------|--------|------------|
-| **`/feature`** | Planner + Architect + TDD pair + all reviewers | `/feature [description \| work item id]` | Medium-to-large features — the whole flow in one go |
-| **`/feature-fast`** | Code Reviewer (+ Security Reviewer if needed) | `/feature-fast [description \| work item id]` | Small changes clear of every sensitive surface |
+| **`/feature`** | Code Reviewer (+ Planner if large, + Security Reviewer if sensitive) | `/feature [description \| work item id]` | Any feature — the whole flow in one go, lean by default |
+| **`/harden`** | Architect + Security Reviewer | `/harden [module \| path \| work item id \| release]` | Deliberate hardening — findings become work items you approve |
 | **`/tdd`** | TDD Test Writer + TDD Implementer | `/tdd [implement\|fix\|refactor] [description]` | Starting any code work |
 | **`/code-review`** | Code Reviewer | `/code-review` | Code complete, before merge |
 | **`/plan`** | Planner | `/plan [feature description]` | Before implementation starts |

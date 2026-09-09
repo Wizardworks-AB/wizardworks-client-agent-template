@@ -45,7 +45,7 @@
         ]
       },
       {
-        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Task|TodoWrite|Bash|mcp__.*__remember",
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Task|TodoWrite|Bash",
         "hooks": [
           {
             "type": "command",

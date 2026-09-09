@@ -21,16 +21,16 @@ const MAX_BYTES = 256 * 1024;
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 
 /** Flow modes a session can be in. */
-const MODES = { FEATURE: 'feature', FAST: 'feature-fast' };
+const MODES = { FEATURE: 'feature' };
 
 /** Documentation and metadata — never treated as source. */
 const NOT_CODE =
   /(^|[\\/])(\.git|node_modules|dist|bin|obj)[\\/]|\.(md|mdx|txt|rst|json5)$|(^|[\\/])(README|CHANGELOG|LICENCE|LICENSE|CONTRIBUTING)(\.[\w]+)?$/i;
 
 /**
- * Paths on the security-sensitive surface, mirroring the surface list in
- * commands/feature-fast.md. Broad on purpose: a false positive costs one extra
- * review, a false negative skips it.
+ * Paths on the security-sensitive surface — the list in rules/workflow.md that
+ * decides whether the security review runs. Broad on purpose: a false positive
+ * costs one extra review, a false negative skips it.
  */
 const SURFACE = [
   /(^|[\\/])(auth|authn|authz|identity|login|oauth|permissions?|roles?)([\\/]|[._-])/i,
@@ -141,12 +141,11 @@ function prune(state) {
 
 function freshEntry() {
   return {
-    mode: null, // 'feature' | 'feature-fast' | null
+    mode: null, // 'feature' | null
     code: [], // source files written this session (absolute)
     surface: false, // any of them on the security-sensitive surface
     agents: [], // subagent_types spawned
     todo: false, // TodoWrite seen
-    plan: false, // remember(type: plan) seen — scope + acceptance criteria recorded
     lastCode: 0, // ts of the most recent source write
     lastVerify: 0, // ts of the most recent test run
     gateBlocks: 0, // times the Stop gate has blocked this session (loop guard)

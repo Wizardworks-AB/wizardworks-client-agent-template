@@ -10,7 +10,6 @@
  *                                         whether any is on the security surface
  *   Task/Agent                         -> which specialist agents were spawned
  *   TodoWrite                          -> the task list exists
- *   mcp__*__remember (type: plan)      -> scope and acceptance criteria recorded
  *   Bash running a test runner         -> the code was verified after being written
  *
  * State lives in the repo's own .git (see flow-state.js). Always exits 0 —
@@ -32,7 +31,6 @@ function main() {
   let codeFile = null;
   let agent = null;
   let todo = false;
-  let plan = false;
   let verify = false;
 
   if (tool === 'Write' || tool === 'Edit' || tool === 'MultiEdit' || tool === 'NotebookEdit') {
@@ -42,12 +40,10 @@ function main() {
     if (typeof input.subagent_type === 'string') agent = input.subagent_type;
   } else if (tool === 'TodoWrite') {
     todo = Array.isArray(input.todos) ? input.todos.length > 0 : true;
-  } else if (/^mcp__.+__remember$/.test(tool)) {
-    plan = input.type === 'plan';
   } else if (tool === 'Bash') {
     verify = S.isTestRun(input.command);
   }
-  if (!codeFile && !agent && !todo && !plan && !verify) return;
+  if (!codeFile && !agent && !todo && !verify) return;
 
   const anchor = codeFile ? path.dirname(path.resolve(codeFile)) : process.cwd();
   const facts = S.gitFacts(anchor) ?? S.gitFacts(process.cwd());
@@ -65,7 +61,6 @@ function main() {
   }
   if (agent && !entry.agents.includes(agent)) entry.agents.push(agent);
   if (todo) entry.todo = true;
-  if (plan) entry.plan = true;
   if (verify) entry.lastVerify = now;
 
   S.writeState(facts.commonDir, state);

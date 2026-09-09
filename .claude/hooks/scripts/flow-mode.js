@@ -3,15 +3,15 @@
 /**
  * Flow mode switch (UserPromptSubmit).
  *
- * Puts the session into a flow when the user invokes `/feature` or
- * `/feature-fast`, and takes it out again on `/feature-off`. While a session is
- * in a flow, flow-guard.js turns the workflow's prerequisites into hard blocks
- * on tool calls, and flow-gate.js adds the verification requirement at Stop.
+ * Puts the session into the feature flow when the user invokes `/feature`, and
+ * takes it out again on `/feature-off`. While a session is in the flow,
+ * flow-guard.js turns the two cheap prerequisites (worktree, task list) into
+ * hard blocks on source writes, and flow-gate.js adds the verification
+ * requirement at Stop.
  *
  * Detection is deliberately belt-and-braces. Depending on the host version the
  * hook may see the raw prompt (`/feature add export`) or the expanded command
- * body, so both are matched: the slash prefix, and the H1 unique to each
- * command file.
+ * body, so both are matched: the slash prefix, and the H1 of the command file.
  *
  * Always exits 0. It only records; it never blocks a prompt.
  */
@@ -20,21 +20,14 @@ const S = require('./flow-state');
 
 const RAW = {
   feature: /^\s*\/feature(\s|$)/,
-  fast: /^\s*\/feature-fast(\s|$)/,
   off: /^\s*\/feature-off(\s|$)/,
 };
-const EXPANDED = {
-  feature: /^#\s+Feature Flow Command\s*$/m,
-  fast: /^#\s+Feature Flow — Fast Lane\s*$/m,
-};
+const EXPANDED = /^#\s+Feature Flow\s*$/m;
 
 function detect(prompt) {
   if (typeof prompt !== 'string') return undefined;
   if (RAW.off.test(prompt)) return null;
-  // Order matters: "/feature-fast" also matches the "/feature" regex's prefix
-  // only if written "/feature " — the (\s|$) guards it, but check fast first anyway.
-  if (RAW.fast.test(prompt) || EXPANDED.fast.test(prompt)) return S.MODES.FAST;
-  if (RAW.feature.test(prompt) || EXPANDED.feature.test(prompt)) return S.MODES.FEATURE;
+  if (RAW.feature.test(prompt) || EXPANDED.test(prompt)) return S.MODES.FEATURE;
   return undefined; // not a flow command — leave the mode as it is
 }
 
