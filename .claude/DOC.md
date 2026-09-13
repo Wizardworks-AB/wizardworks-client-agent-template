@@ -169,7 +169,7 @@ Skills are deep technical reference documentation for a specific technology area
 
 **The `core` toolkit ships no stack skill.** Stack skills are provided by the **stack overlay** you selected when you downloaded this toolkit (for example `dotnet`, `react`, or `azure`). If you selected an overlay, its skills appear under `skills/` alongside this guide; if you selected none, the agents fall back to stack-neutral guidance.
 
-Core does ship one stack-neutral skill: `meeting-capture` — recording a meeting (via the Fae Meeting Recorder bot or a local recording tool), transcribing it, and saving the notes to the knowledge graph with the full transcript attached to the meeting node.
+Core does ship two stack-neutral skills: `meeting-capture` — recording a meeting (via the Fae Meeting Recorder bot or a local recording tool), transcribing it, and saving the notes to the knowledge graph with the full transcript attached to the meeting node — and `prototype-scan` — turning a customer prototype repo's recent commits into screenshot-backed Feature/User Story drafts that you approve before they are created on your board (entry point: `/prototype-scan`).
 
 To add or change stack skills later, re-download with the appropriate overlay selected, or drop your own `skills/<name>/SKILL.md` into the toolkit.
 
@@ -195,7 +195,7 @@ Each agent includes a **Hook Integration** section that shows which hooks automa
 
 ### What Are Skills?
 
-**Skills** are deep technical reference documentation defining patterns and standards for a specific technology area. Stack skills are provided by the stack overlay (see above); core ships the stack-neutral `meeting-capture` skill.
+**Skills** are deep technical reference documentation defining patterns and standards for a specific technology area. Stack skills are provided by the stack overlay (see above); core ships the stack-neutral `meeting-capture` and `prototype-scan` skills.
 
 ### What Are Commands?
 
@@ -263,6 +263,8 @@ This means fewer mistakes make it to production - agents catch issues during dev
 │   ├── code-review.md               # /code-review workflow
 │   ├── commit.md                    # /commit workflow
 │   ├── e2e.md                       # /e2e workflow
+│   ├── feature.md                   # /feature end-to-end feature flow
+│   ├── harden.md                    # /harden deliberate hardening pass
 │   ├── plan.md                      # /plan workflow
 │   ├── refactor-clean.md            # /refactor-clean workflow
 │   ├── retrospective.md             # /retrospective workflow
@@ -273,6 +275,8 @@ This means fewer mistakes make it to production - agents catch issues during dev
 │
 ├── rules/                           # Non-negotiable standards
 │   ├── agents-and-commands.md       # Agent/command reference and parallel execution
+│   ├── asking-the-user.md           # How to ask the user anything — options, never prose
+│   ├── simplicity.md                # Less code is better code — build what the criteria require
 │   ├── coding-style.md              # Code style standards
 │   ├── fae.md                       # Fae knowledge graph (MCP) usage
 │   ├── git-workflow.md              # Git workflow guidelines
@@ -294,6 +298,7 @@ This means fewer mistakes make it to production - agents catch issues during dev
 │   ├── README.md                    # How the hook system works
 │   ├── scripts/
 │   │   ├── check-secrets.js         # Universal secret scan (blocking)
+│   │   ├── check-worktree.js        # Universal worktree guard (warning)
 │   │   ├── check-template-update.js # SessionStart template-update check
 │   │   ├── dispatch.js              # Hook dispatcher (wired via settings.json)
 │   │   └── (check-*.js)             # Stack-overlay checks, when a stack was selected
@@ -535,6 +540,8 @@ Commands provide quick-access workflows using slash command syntax.
 
 | Command | Agent | Syntax | When to Use |
 |---------|-------|--------|------------|
+| **`/feature`** | Code Reviewer (+ Planner if large, + Security Reviewer if sensitive) | `/feature [description \| work item id]` | Any feature — the whole flow in one go, lean by default |
+| **`/harden`** | Architect + Security Reviewer | `/harden [module \| path \| work item id \| release]` | Deliberate hardening — findings become work items you approve |
 | **`/tdd`** | TDD Test Writer + TDD Implementer | `/tdd [implement\|fix\|refactor] [description]` | Starting any code work |
 | **`/code-review`** | Code Reviewer | `/code-review` | Code complete, before merge |
 | **`/plan`** | Planner | `/plan [feature description]` | Before implementation starts |
@@ -549,7 +556,7 @@ Commands provide quick-access workflows using slash command syntax.
 
 ---
 
-### Rules (8 Total)
+### Rules (9 Total)
 
 Rules define standards that all developers and agents follow.
 

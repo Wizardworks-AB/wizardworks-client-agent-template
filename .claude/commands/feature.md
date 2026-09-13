@@ -1,98 +1,127 @@
 ---
 name: feature
-description: End-to-end feature flow — plan, architect-review the plan, implement with TDD, then full review (code quality + security + architect + e2e) iterating until the task is verifiably solved
-usage: /feature [feature description]
+description: Feature flow — worktree, acceptance criteria, live task list, tests with the code, one bounded review round, draft PR. Lean by default; the planner and the security reviewer join only when the change calls for them
+argument-hint: [feature description | work item id]
 ---
 
-# Feature Flow Command
+# Feature Flow
 
-Runs a complete feature delivery cycle as a single orchestrated workflow.
-The **architect appears twice**: first to review the plan before any code is written,
-and again at the end to review the implementation.
+Deliver a feature end to end, spending the effort on the functionality rather than on
+ceremony. Default cost: **one agent spawn** — the code review. The planner joins only when
+the change is large, the security reviewer only when it touches something sensitive.
+Robustness work beyond what the acceptance criteria need is a separate, deliberate step:
+`/harden`.
+
+`rules/simplicity.md` governs how much gets built: **what the criteria require and nothing
+more.** Less code is better code.
+
+On Claude Code two things are enforced by hooks (`rules/hooks.md`): no source write outside
+a worktree or before the task list exists, and no ending a turn with code that is unreviewed
+or untested since it was last changed. `/feature-off` leaves the flow.
 
 ## Usage
 
 ```bash
 /feature add board monitoring notifications
-/feature implement knowledge repo auto-update after approval
-/feature add export to CSV alongside PDF
+/feature #1234
 ```
 
-## When to Use
+For a genuine one-liner, use `/tdd` directly.
 
-- Medium-to-large features where you want the full guardrail chain in one go
-- Architectural changes that must be validated before AND after implementation
+## Three habits that run through every step
 
-**When NOT to use**: trivial bug fixes or one-line changes — use `/tdd` directly.
+**Task list.** Use the `TodoWrite` tool, in your very first response, seeded with the work
+items in scope — one entry each, `#3021 · implement CSV writer`, `#new · draft work item for
+<thing>`. One task per verifiable outcome; exactly one in progress; newly discovered work
+added the moment it is found. Follow-ups that are not this feature stay parked in the list
+until drafted as work items (created only with approval). Without a tracker id, drop the prefix.
 
-## Workflow
+**Never stall on a human.** When a task needs a decision, approval or credential only a
+person can give: mark it `blocked: needs human`, state the assumption you continue on, move
+to the next task, and bring every blocker to the user together at the end (step 5) as a
+choice with options (`rules/asking-the-user.md`). Never assume your way past a trust boundary
+(merge, deploy, delete, infrastructure, creating work items), a security decision, a
+destructive data change, a cost commitment, or a missing credential — park those, always.
+Never put a real secret anywhere: not in code, not in a commit, not in the graph.
 
-Run these steps in order. Do not skip a step. Each gate must pass before moving on.
+**Knowledge graph** (`rules/fae.md`): `context(<topic>)` before anything else; one
+`remember("plan", …)` with the scope and criteria; `decide()` for design choices;
+`remember("gotcha", …)` for surprises; `block()`/`resolve()` for parked tasks; a
+`remember("fact", …)` per commit and one when the feature ships. Full content in the node.
 
-### 0. Set up an isolated worktree
-Create a dedicated git worktree so the feature is developed in isolation from the main checkout:
+## Steps
+
+### 0. Worktree
 
 ```bash
-git worktree add ../<repo>-<feature-slug> -b feature/<feature-slug> main
+git worktree add ../<repo>-<slug> -b feature/<slug> main
 ```
 
-- Do all work for this feature inside that worktree.
-- When the feature is merged or abandoned, remove it with `git worktree remove`.
+Commit any applied-but-untracked template files first — a worktree materializes only tracked
+files. Set `CLAUDE_CODE_TASK_LIST_ID` (see `rules/git-workflow.md`) or keep a task file in the
+worktree so the list survives compaction.
 
-### 1. Plan
-Run `/plan [feature description]`.
+### 1. Scope and acceptance criteria
 
-- Spawns the **planner agent** to break the work into tasks with dependencies and risks.
-- Produce a concrete, ordered implementation roadmap.
-- **Capture acceptance criteria**: the plan must state, verifiably, what "the task is solved" means. These criteria are the convergence target for step 5.
-- **Create the task list**: turn the roadmap into a tracked task list (TodoWrite) so progress is visible task by task throughout the flow. Every subsequent step works against this list — mark tasks in-progress/done as you go.
+If the request or work item already has verifiable criteria, confirm them and move on. If
+not, writing them is the first task: three to five bullets — what is in, what is out, and
+what you will demonstrate to call it done ("the filtered list exports to CSV and opens in
+Excel with the visible columns", not "export works"). Record them with `remember("plan", …)`
+and, where there is a work item, as a **comment** on it — never by editing its fields. Present
+them to the user as options, then proceed on your draft without waiting for the answer.
 
-### 2. Architect reviews the plan
-Spawn the **architect agent** to review the plan from step 1.
+### 2. Tasks — and the planner, only when needed
 
-- Validate the design against the project's architecture and conventions (`rules/`, stack overlays, existing codebase patterns).
-- The architect returns concrete input: gaps, risks, simpler alternatives, ordering changes.
-- **Revise the plan** to incorporate the architect's input. If the architect raises blocking concerns, loop back to step 1.
-- Update the task list to match the revised plan, then present it and proceed.
+Turn the criteria into tasks in `TodoWrite`, each tagged with the work item it serves and
+how it will be verified. **If that comes to more than about five tasks, or the change crosses
+more than one architectural layer, run `/plan`** — it spawns the **planner** agent to produce
+the roadmap, and you expand the list from its output. Otherwise plan inline: a plan that fits
+in five lines does not need an agent.
 
-### 3. Implement
-Implement the revised plan using TDD via `/tdd [feature]`:
+### 3. Implement, task by task
 
-- **tdd-test-writer** writes failing tests (RED), verify by running the project's test suite.
-- **tdd-implementer** makes tests pass (GREEN), verify by running the test suite again.
-- Refactor while keeping tests green (BLUE). No code without tests.
-- Work through the task list in order, marking each task done only when its tests pass.
+For each task: write the failing test, write the least code that passes it, run the suite.
+Then exercise the real path once — the UI in a browser if a browser-automation MCP is
+configured, the endpoint with a real request, the job actually triggered — against local or
+disposable resources only, and note what you saw on the task. A task is done when its test is
+green and you saw it work. No code without a test; no code the criteria did not ask for.
 
-### Discoveries along the way (applies to every step)
-New work always surfaces mid-flight — a missing validation, a refactor that should happen, an adjacent bug. Never let it evaporate:
+### 4. One review round
 
-1. **Add it to the task list** immediately, scoped: does it block this feature (do it now) or is it follow-up work (park it)?
-2. **If the feature is tied to a backlog parent** (an epic, user story, or similar in your work item tracker), draft each parked discovery as a child work item — title, description, and parent link — and **present the drafts to the user for approval**. Create the work items only after the user approves (trust boundary: no work item creation without human approval).
+- **`/code-review`** — always. Spawns the **code-reviewer** agent, which reads the diff
+  against the acceptance criteria and the conventions around it and reports bugs, broken
+  criteria, secrets, and convention breaks visible in the diff. Anything else it lists in one
+  line each under "for `/harden`".
+- **`/security-review`** — only if the diff touches authentication or authorization, secrets,
+  tenant isolation, a migration, a public API contract, infrastructure, or a new dependency.
+  Spawns the **security-reviewer** agent, scoped to the diff.
 
-### 4. Full review (parallel)
-After implementation, run all four validations. Steps 4a, 4b, and 4d are independent — run them in parallel:
+Fix the bugs and broken criteria, re-run the tests, and have the reviewer confirm the fixes
+landed. **That confirmation is the second and last round.** Anything still open after it is
+either a bug you fix now or a suggestion you draft as a work item for `/harden` — never a
+third round.
 
-- **4a. Code quality** — `/code-review`: spawns the **code-reviewer agent** for coding standards and project patterns.
-- **4b. Security** — `/security-review`: spawns the **security-reviewer agent** for secrets, injection, authentication/authorization, and data exposure.
-- **4c. Architect review** — spawn the **architect agent** again to review the *implemented* code against the approved plan: did it follow the design, and is the result maintainable?
-- **4d. Verify** — `/e2e run`: test the critical user flows the feature touches, and check the implementation against the acceptance criteria from step 1.
+### 5. Human blockers, then close out
 
-### 5. Resolve and converge
-Iterate until the task is **verifiably solved** — not just until reviewers are satisfied:
+Bring every parked task to the user in **one** pass — what you need, what you assumed, what
+changes if the answer differs — each as a choice with options, including the drafted work
+items awaiting approval. Unblock, finish, re-test.
 
-- Collect all findings from step 4 (CRITICAL / HIGH / MEDIUM) and add them to the task list.
-- **Fix issues immediately** — don't just report them.
-- After every fix, re-run the build and the full test suite (all green) and re-run the affected reviews.
-- Loop steps 4–5 until ALL of the following hold:
-  1. The build and the full test suite pass with zero failures.
-  2. `/e2e` passes for the affected flows.
-  3. Every acceptance criterion from step 1 is demonstrably met.
-  4. Code review, security review, and architect review all come back clean.
-  5. The task list has no open tasks (parked follow-ups are drafted as child work items per the Discoveries rule).
-- Done only when all five hold in the same iteration.
+Then commit, open a **draft** PR (what changed, why, how to test), and record the delivery
+fact and any gotcha in the graph. Never merge, deploy, or create work items without approval.
+
+**Done when**: the build and tests are green, every acceptance criterion has been
+demonstrated, the review round is closed, and the task list is empty (parked follow-ups
+drafted as work items). If human answers are still outstanding, stop and report — what
+shipped and against which criteria, what is deferred and on what, which assumptions are
+unconfirmed — and resume at step 5 when they arrive. Do not loop.
 
 ## Notes
 
-- This command is the automated form of the workflow in `rules/workflow.md`.
-- Never override agent models — each agent carries its optimal model in frontmatter.
-- Respect the trust boundaries: write code on branches and open draft PRs, but never merge, deploy, or create work items without human approval.
+- The architect, e2e-runner and doc-updater agents are not part of this flow. Update the
+  docs you touched yourself; the real-path check in step 3 is the end-to-end test; the
+  architect works in `/plan` and `/harden`.
+- Never override agent models — each agent carries its model in frontmatter
+  (`rules/agents-and-commands.md`).
+- The `/command` names are Claude Code slash commands; on runtimes without them, do the same
+  step by hand from the matching rules file.

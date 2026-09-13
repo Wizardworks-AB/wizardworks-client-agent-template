@@ -1,7 +1,7 @@
 ---
 name: update-template
 description: Update this local Fae agent template to the latest published version
-usage: /update-template
+
 ---
 
 # Update Template Command

@@ -1,12 +1,12 @@
 ---
 name: commit
 description: Commit with Patterns & Practices validation and auto-documentation
-usage: /commit [optional message]
+argument-hint: [optional message]
 ---
 
 # Commit Command
 
-This command validates your changes against Wizardworks Patterns & Practices before committing.
+This command validates your changes against the project's Patterns & Practices before committing.
 
 ## What This Command Does
 
@@ -46,7 +46,7 @@ Summarize:
 
 ### Step 2: Code Review
 
-Spawn the code-reviewer agent to review changes against Wizardworks standards:
+Spawn the code-reviewer agent to review changes against the project's standards:
 
 - Patterns & Practices compliance
 - Security issues
@@ -104,7 +104,7 @@ If review passed (or user chose to commit anyway):
 ## Commit Summary
 
 ### Changes
-- 3 files changed: UserService.cs, UserController.cs, UserServiceTests.cs
+- 3 files changed: the user service, its API endpoint, and their tests
 - Type: New feature (user registration endpoint)
 
 ### P&P Review: ✅ PASSED
@@ -129,10 +129,10 @@ Pushed: ✅
 ### P&P Review: ❌ 2 ISSUES FOUND
 
 1. [HIGH] Missing input validation on email field
-   File: UserController.cs:42
+   File: <the endpoint handling registration>:42
 
 2. [MEDIUM] Magic number for token expiry
-   File: UserService.cs:78
+   File: <the user service>:78
 
 Options:
 a) Fix issues first (recommended)

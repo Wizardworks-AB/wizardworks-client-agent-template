@@ -1,7 +1,7 @@
 ---
 name: report-worklog
 description: Summarize the work done so far this session and log it to your worklog (time reporting)
-usage: /report-worklog
+
 ---
 
 # Report Worklog Command

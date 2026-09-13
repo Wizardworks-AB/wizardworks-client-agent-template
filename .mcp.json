@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "fae-wizardworks-fae": {
+      "type": "http",
+      "url": "https://mcp.faeplatform.ai/mcp",
+      "headers": {
+        "X-Organization-Id": "5bd2ebf7-d6c5-491d-988c-e5c240ed53a5",
+        "X-Default-Project": "fae"
+      }
+    }
+  }
+}

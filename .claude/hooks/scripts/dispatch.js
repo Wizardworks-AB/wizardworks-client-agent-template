@@ -36,10 +36,23 @@ const path = require('path');
 const SCRIPTS_DIR = __dirname;
 const STACKS_DIR = path.join(__dirname, '..', 'stacks');
 
-// Universal, stack-independent checks (mirrors ../hooks.json).
-const UNIVERSAL_POST_CHECKS = [
-  { script: 'check-secrets.js', match: null }, // null match = always runs
-];
+// Universal, stack-independent checks. The list lives in universal-checks.json
+// so the build can assert every named script is actually delivered without
+// parsing this source; keeping it there means the two can never drift.
+// If that file is unreadable we still scan for secrets — the one check that
+// must never be silently dropped.
+const UNIVERSAL_POST_CHECKS = loadUniversalChecks();
+
+function loadUniversalChecks() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(path.join(SCRIPTS_DIR, 'universal-checks.json'), 'utf8'));
+    const checks = (parsed?.checks ?? []).filter((c) => c && typeof c.script === 'string');
+    if (checks.length > 0) return checks.map((c) => ({ script: c.script, match: c.match ?? null }));
+  } catch {
+    // fall through to the guaranteed minimum
+  }
+  return [{ script: 'check-secrets.js', match: null }];
+}
 
 /** Load per-stack checks from ../stacks/*.json (only selected stacks exist). */
 function loadStackChecks() {
@@ -83,8 +96,13 @@ function readStdin() {
   }
 }
 
-function runCheck(script, filePath) {
-  return spawnSync('node', [path.join(SCRIPTS_DIR, script), filePath], {
+function runCheck(script, filePath, sessionId) {
+  // sessionId is forwarded as an optional 3rd argv so a check can scope its
+  // state to one session (check-worktree.js warns once per session). Checks
+  // that don't want it simply ignore it.
+  const args = [path.join(SCRIPTS_DIR, script), filePath];
+  if (sessionId) args.push(sessionId);
+  return spawnSync('node', args, {
     encoding: 'utf8',
     timeout: 10_000,
   });
@@ -125,10 +143,11 @@ function main() {
   if (mode === 'post') {
     if (!fs.existsSync(filePath)) process.exit(0);
     const checks = [...UNIVERSAL_POST_CHECKS, ...loadStackChecks()];
+    const sessionId = typeof event?.session_id === 'string' ? event.session_id : '';
     let feedback = '';
     for (const check of checks) {
       if (!pathMatches(check.match, filePath)) continue;
-      const result = runCheck(check.script, filePath);
+      const result = runCheck(check.script, filePath, sessionId);
       if (result.error) continue; // missing node/script — fail open
       if ((result.stderr && result.stderr.trim()) || result.status !== 0) {
         feedback += result.stderr || `${check.script} failed.\n`;
