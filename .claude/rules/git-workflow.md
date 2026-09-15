@@ -167,7 +167,6 @@ When creating PRs:
    - Added unit and integration tests
 
    ## Test Plan
-   - [ ] Unit tests pass (80%+ coverage)
    - [ ] Integration tests pass
    - [ ] Manual testing of search functionality
    - [ ] Tested with various search queries
@@ -194,8 +193,7 @@ Before committing:
 
 - [ ] Code compiles/builds successfully
 - [ ] All tests pass
-- [ ] New tests written (TDD)
-- [ ] 80%+ test coverage maintained
+- [ ] New tests written for the change
 - [ ] No console.log or debug statements
 - [ ] No commented-out code
 - [ ] No hardcoded secrets
@@ -220,14 +218,9 @@ Run your stack's build, test, lint, format, and dependency-vulnerability command
 - Break down into smaller tasks
 - Identify dependencies and risks
 
-### 2. TDD Approach (Mandatory)
-1. Follow the TDD workflow (in Claude Code: `/tdd`, which runs the **tdd-test-writer** and **tdd-implementer** agents)
-2. Write test first (RED)
-3. Run test - it should FAIL
-4. Write minimal implementation (GREEN)
-5. Run test - it should PASS
-6. Refactor (IMPROVE)
-7. Verify 80%+ coverage
+### 2. Implement with tests (Mandatory)
+1. Write the code and the tests that prove it — either order (`rules/testing.md`)
+2. Run the whole suite - it should PASS
 
 ### 3. Code Review
 - Use **code-reviewer** agent immediately after writing code
@@ -256,7 +249,6 @@ gh pr create --title "Add magic search functionality" \
 - Integrate OpenAI embeddings
 
 ## Test Plan
-- [x] Unit tests (85% coverage)
 - [x] Integration tests pass
 - [x] Manual testing completed
 
@@ -683,6 +675,5 @@ git branch -d release/v1.2.0
   - Passing CI/CD
   - Code review approval
   - All tests passing
-  - 80%+ coverage maintained
 
 **Remember**: Git is the single source of truth. Follow these workflows rigorously to maintain code quality and team collaboration.

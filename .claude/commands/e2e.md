@@ -121,7 +121,6 @@ Essential coverage:
 
 ## Related Commands
 
-- Use `/tdd` for unit and integration tests
 - Use `/code-review` before committing
 - Use `/security-review` for auth/security flows
 - See `rules/testing.md` for full testing requirements

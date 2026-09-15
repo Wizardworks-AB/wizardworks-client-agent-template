@@ -1,13 +1,13 @@
 ---
 name: frontend-patterns-react
-description: Wizardworks frontend architecture patterns for TypeScript, React, TanStack ecosystem, and TDD. As a Wizardworks employee, you must adhere to these standards.
+description: Recommended frontend architecture patterns for TypeScript, React, TanStack ecosystem, and testing for this stack.
 ---
 
-# Wizardworks Frontend Development Patterns (React/TypeScript)
+# Frontend Development Patterns (React/TypeScript)
 
-Frontend architecture patterns and best practices for scalable React applications at Wizardworks.
+Frontend architecture patterns and best practices for scalable React applications.
 
-**Important**: As a Wizardworks employee/agent, you are expected to follow these standards rigorously.
+**Important**: These are recommended patterns for this stack.
 
 ## Technology Stack
 
@@ -25,7 +25,7 @@ Frontend architecture patterns and best practices for scalable React application
 
 ### Recommended Tools
 - **Zod** for schema validation
-- **Tailwind CSS** for styling (Wizardworks standard)
+- **Tailwind CSS** for styling (recommended)
 - **Radix UI** or **Shadcn/ui** for accessible components
 - **Zustand** or **Context** for lightweight global state (avoid Redux unless necessary)
 
@@ -637,7 +637,7 @@ export class ErrorBoundary extends Component<Props, State> {
 }
 ```
 
-## Testing Standards (TDD)
+## Testing Standards
 
 ### Component Test with React Testing Library
 
@@ -889,17 +889,17 @@ export function ExpensiveComponent({ items }: { items: Item[] }) {
 }
 ```
 
-## Wizardworks Frontend Best Practices Summary
+## Frontend Best Practices Summary
 
 1. **Always use TypeScript with strict mode**
 2. **TanStack Query for all data fetching**
 3. **TanStack Form for complex forms**
 4. **TanStack Table for data tables**
-5. **Write tests first (TDD)**
+5. **Ship tests with the code**
 6. **Use Zod for validation**
 7. **Component composition over complexity**
 8. **Immutability patterns (spread operators)**
 9. **Error boundaries for resilience**
 10. **Accessibility-first (ARIA labels, semantic HTML)**
 
-**Remember**: These patterns enable rapid development, excellent user experience, and maintainable code. Follow them rigorously as a Wizardworks employee.
+**Remember**: These patterns enable rapid development, excellent user experience, and maintainable code.

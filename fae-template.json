@@ -1,7 +1,7 @@
 {
-  "overlayRevision": null,
+  "overlayRevision": 4,
   "variantKey": "claude-code",
-  "version": "0.24.11272",
+  "version": "0.30.11893",
   "organizationId": "5bd2ebf7-d6c5-491d-988c-e5c240ed53a5",
   "projectName": "fae",
   "stacks": [
@@ -10,5 +10,5 @@
     "react"
   ],
   "gatewayBaseUrl": "https://api.faeplatform.ai",
-  "downloadedAt": "2026-09-13T10:47:43.3765471Z"
+  "downloadedAt": "2026-09-15T06:34:48.9533301Z"
 }

@@ -1,13 +1,13 @@
 ---
 name: backend-patterns-dotnet
-description: Wizardworks backend architecture patterns for .NET/C#, Entity Framework Core, API design, Docker, and TDD. As a Wizardworks employee, you must adhere to these standards.
+description: Recommended backend architecture patterns for .NET/C#, Entity Framework Core, API design, Docker, and testing for this stack.
 ---
 
-# Wizardworks Backend Development Patterns (.NET/C#)
+# Backend Development Patterns (.NET/C#)
 
-Backend architecture patterns and best practices for scalable .NET applications at Wizardworks.
+Backend architecture patterns and best practices for scalable .NET applications.
 
-**Important**: As a Wizardworks employee/agent, you are expected to follow these standards rigorously.
+**Important**: These are recommended patterns for this stack.
 
 ## Technology Stack
 
@@ -33,7 +33,7 @@ Backend architecture patterns and best practices for scalable .NET applications 
 
 ## Architecture Pattern: Controller-Service-Repository
 
-Wizardworks uses a strict layered architecture:
+This stack uses a strict layered architecture:
 
 ```
 ┌─────────────────────────────────────┐
@@ -140,7 +140,7 @@ public class Magic
 
 ### DTO Pattern with Public IDs
 
-Wizardworks ALWAYS exposes Public IDs externally, NEVER internal database IDs.
+ALWAYS expose Public IDs externally, NEVER internal database IDs.
 
 ```csharp
 // MagicDto.cs (External representation)
@@ -515,7 +515,7 @@ public class MagicController : ControllerBase
 
 ## Exception Handling
 
-Wizardworks uses a layered exception handling approach: custom exceptions for domain errors, global middleware for consistency, and Application Insights for observability.
+Use a layered exception handling approach: custom exceptions for domain errors, global middleware for consistency, and Application Insights for observability.
 
 ### Custom Exception Types
 
@@ -894,11 +894,11 @@ services:
       - "5001:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=WizardworksDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True
+      - ConnectionStrings__DefaultConnection=Server=db;Database=AppDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True
     depends_on:
       - db
     networks:
-      - wizardworks-network
+      - app-network
 
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -910,13 +910,13 @@ services:
     volumes:
       - sqlserver-data:/var/opt/mssql
     networks:
-      - wizardworks-network
+      - app-network
 
 volumes:
   sqlserver-data:
 
 networks:
-  wizardworks-network:
+  app-network:
     driver: bridge
 ```
 
@@ -939,7 +939,7 @@ dotnet ef database update PreviousMigrationName
 dotnet ef migrations script
 ```
 
-## Testing Standards (TDD)
+## Testing Standards
 
 ### Unit Test Example (xUnit + FluentAssertions)
 
@@ -1153,17 +1153,17 @@ public async Task<Magic?> GetByIdAsync(int magicId)
 }
 ```
 
-## Wizardworks Best Practices Summary
+## Best Practices Summary
 
 1. **Always use Controller-Service-Repository pattern**
 2. **Entity Framework Core is default, Dapper is optional**
 3. **Always expose Public IDs externally, never database IDs**
 4. **Use DTOs for all API inputs/outputs**
-5. **Write tests first (TDD)**
+5. **Ship tests with the code**
 6. **Use Docker for local development**
 7. **Use EF migrations for database schema changes**
 8. **Interface-based dependency injection**
 9. **Soft delete by default**
 10. **Comprehensive error handling**
 
-**Remember**: These patterns enable rapid development, easy testing, and confident deployment. Follow them rigorously as a Wizardworks employee.
+**Remember**: These patterns enable rapid development, easy testing, and confident deployment.

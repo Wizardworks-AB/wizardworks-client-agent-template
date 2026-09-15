@@ -1,4 +1,4 @@
-# Wizardworks Engineering Constitution
+# Engineering Constitution
 
 **Version**: 1.1
 **Last Updated**: 2025-01-26
@@ -8,25 +8,25 @@
 
 ## Purpose
 
-This constitution defines the core principles, standards, and practices for all engineering work at Wizardworks. It serves as the foundation for our AI-first approach to software development.
+This constitution defines the core principles, standards, and practices for engineering work on this project. It is the foundation for an AI-first approach to software development.
 
-**Important**: All Wizardworks employees and AI agents must adhere to these standards rigorously.
+**Important**: All contributors and AI agents working on this project must adhere to these standards rigorously.
 
 ---
 
 ## Core Principles
 
 ### 1. AI-First Development
-Wizardworks embraces AI as a core development partner. We leverage Claude Code and AI agents to enhance productivity while maintaining human oversight and responsibility.
+This project embraces AI as a core development partner. We leverage Claude Code and AI agents to enhance productivity while maintaining human oversight and responsibility.
 
 ### 2. Quality Over Speed
 We value sustainable, high-quality code over quick fixes. Quality enables long-term velocity.
 
-### 3. Test-Driven Development
-Tests are not optional. We write tests first (TDD), always. 80%+ coverage is mandatory.
+### 3. Tested Code
+Tests are not optional. Every change ships with the tests that prove it — integration tests at the real boundary, end-to-end tests for the critical flows. No coverage percentage.
 
 ### 4. Infrastructure as Code
-All infrastructure is defined in code (Bicep). Manual resource creation is prohibited.
+All infrastructure is defined in code. Manual resource creation is prohibited.
 
 ### 5. Security First
 Security is non-negotiable. We validate inputs, protect secrets, and follow security best practices always.
@@ -38,193 +38,84 @@ We document patterns, learn from experience, and continuously improve our practi
 
 ## Technology Standards
 
-### Backend Stack
+This constitution is stack-neutral. It defines the principles every project follows regardless of language, framework, or cloud.
 
-**Required**:
-- **.NET 10** (latest LTS or current version)
-- **ASP.NET Core** (Web APIs)
-- **Entity Framework Core** (default ORM for new projects)
-- **Docker** (containerization)
-- **xUnit** (testing framework)
-- **FluentAssertions** (test assertions)
+Concrete technology choices — the required language runtime and versions, ORM, test framework, UI libraries, cloud platform, IaC tooling, and CI/CD — plus the code examples that demonstrate them, live in the stack overlay you selected at download. See `rules/<stack>.md` and the accompanying stack skill.
 
-**Optional** (with justification):
-- **Dapper** (performance-critical scenarios only)
-- **MediatR** (CQRS in complex domains)
-
-**Existing Projects**: Follow existing patterns. If a project uses Dapper, continue using Dapper. Don't mix ORMs - consistency within a project matters more than following the "new project" standard.
-
-### Frontend Stack
-
-**Required**:
-- **React 19+** (latest version)
-- **TypeScript 5+** (strict mode enabled)
-- **TanStack Query** (data fetching/caching)
-- **TanStack Form** (form management)
-- **TanStack Table** (data tables)
-- **Tailwind CSS** (styling)
-- **Vite** or **Next.js** (build tool)
-- **Vitest** (testing framework)
-- **Playwright** (E2E testing)
-
-### Infrastructure Stack
-
-**Required**:
-- **Azure** (cloud platform)
-- **Bicep** (Infrastructure as Code)
-- **Docker** (containerization)
-- **Azure DevOps** or **GitHub Actions** (CI/CD)
-- **Azure Key Vault** (secrets management)
-- **Application Insights** (monitoring)
+**Existing projects**: Follow existing patterns. Consistency within a project matters more than adopting a "new project" default.
 
 ---
 
 ## Architectural Standards
 
-### Controller-Service-Repository Pattern (MANDATORY)
+The following are architectural principles. Their concrete expression in a given language or framework — including code examples — lives in the stack overlay (`rules/<stack>.md` and the stack skill).
 
-All backend applications must follow this layered architecture:
+### Layered Architecture (MANDATORY)
 
-```
-┌─────────────────────────────────────┐
-│        Controller Layer             │  ← HTTP concerns, routing, validation
-├─────────────────────────────────────┤
-│         Service Layer               │  ← Business logic, orchestration
-├─────────────────────────────────────┤
-│       Repository Layer              │  ← Data access, persistence
-├─────────────────────────────────────┤
-│     Entity Framework Core           │  ← ORM
-└─────────────────────────────────────┘
-```
+Backend applications must separate responsibilities into distinct layers, typically:
+
+- **Interface layer** — transport/HTTP concerns, routing, request validation
+- **Application/service layer** — business logic and orchestration
+- **Data-access layer** — persistence and queries
 
 **Rules**:
-- Controllers: HTTP concerns ONLY
-- Services: Business logic ONLY
-- Repositories: Data access ONLY
-- NO layer skipping (Controller → Repository is WRONG)
+- Each layer has a single responsibility.
+- No layer skipping (e.g. calling the data-access layer directly from the interface layer is wrong).
 
 ### Public ID Pattern (MANDATORY)
 
-**Rule**: NEVER expose database IDs externally. ALWAYS use Public IDs.
-
-```csharp
-// ✅ GOOD
-public class Magic
-{
-    public int MagicId { get; set; }           // Internal DB ID
-    public string PublicMagicId { get; set; }  // External Public ID
-}
-
-public class MagicDto
-{
-    public string PublicMagicId { get; set; }  // Only public ID exposed
-}
-
-// ❌ WRONG
-public class MagicDto
-{
-    public int MagicId { get; set; }  // Exposing database ID
-}
-```
+**Rule**: Never expose internal database IDs across an external boundary. Always expose a separate, opaque public identifier and keep the internal key private.
 
 ### DTO Pattern (MANDATORY)
 
-**Rule**: All API inputs and outputs use DTOs. Never expose entities directly.
-
-```csharp
-// ✅ GOOD
-[HttpPost]
-public async Task<IActionResult> Create([FromBody] CreateMagicDto dto)
-{
-    var result = await _service.CreateAsync(dto);
-    return Ok(result);  // Returns MagicDto
-}
-
-// ❌ WRONG
-[HttpPost]
-public async Task<IActionResult> Create([FromBody] Magic entity)
-{
-    // Exposing entity model directly
-}
-```
+**Rule**: All external inputs and outputs use dedicated data-transfer objects. Never expose persistence entities directly across an API boundary.
 
 ### Component Composition (Frontend)
 
 **Rule**: Build UIs from small, focused components. Avoid large monolithic components.
 
-```typescript
-// ✅ GOOD: Composed components
-<MagicList>
-  <MagicListHeader />
-  <MagicListFilters />
-  <MagicListTable />
-  <MagicListPagination />
-</MagicList>
-
-// ❌ WRONG: One giant component doing everything
-<MagicListEverything />
-```
-
 ---
 
 ## Development Standards
 
-### Test-Driven Development (MANDATORY)
+### Testing (MANDATORY)
 
-**Workflow**: Red → Green → Refactor
+Every change ships with tests that exercise the behavior and fail when it is broken
+(`rules/testing.md`). Write test and code in whichever order is fastest; run the whole suite
+after every task.
 
-1. **Write Test First** (RED): Test should fail
-2. **Run Test**: Verify it fails for right reason
-3. **Minimal Implementation** (GREEN): Make test pass
-4. **Run Test**: Verify it passes
-5. **Refactor** (IMPROVE): Improve code quality
-6. **Verify Coverage**: Ensure 80%+ coverage
+**Where to test**:
+- Integration tests at the real boundary (endpoint, database, message handler) — the default
+- End-to-end tests for the critical user flows
+- Unit tests only where the logic is intricate
 
-**Required Test Types**:
-- Unit Tests (individual functions/methods)
-- Integration Tests (API endpoints, database)
-- E2E Tests (critical user flows)
-
-**Coverage Requirement**: 80% minimum (lines, functions, branches, statements)
+There is no coverage percentage. A test earns its place by catching a real regression.
 
 ### Coding Style
 
-#### .NET/C#
-- PascalCase for classes, methods, properties
-- camelCase for parameters and local variables
-- Interfaces start with 'I'
-- Async methods end with 'Async'
-- Methods: <50 lines
-- Files: <800 lines
+Language-specific naming conventions, file/method size limits, and formatting rules live in the stack overlay (`rules/coding-style.md` and `rules/<stack>.md`).
 
-#### TypeScript/React
-- camelCase for variables and functions
-- PascalCase for components, classes, types
-- UPPER_SNAKE_CASE for constants
-- Components: <200 lines
-- Files: <400 lines
-
-#### Universal
+**Universal**:
 - Clear, descriptive names
-- Immutability patterns (spread operators)
+- Immutability patterns (avoid in-place mutation of shared state)
 - Early returns to reduce nesting
 - Extract reusable logic
 - No commented-out code
-- No console.log in production
+- No debug/console logging in production
 
 ### Security (MANDATORY)
 
 **Never**:
 - Hardcode secrets (API keys, passwords, connection strings)
 - Expose database IDs externally
-- Use string concatenation for SQL queries
-- Allow unsanitized HTML rendering
+- Build queries via string concatenation
+- Render unsanitized user-supplied HTML
 - Skip input validation
-- Disable HTTPS
+- Disable transport encryption (HTTPS/TLS)
 
 **Always**:
-- Store secrets in Azure Key Vault or environment variables
-- Use parameterized queries (EF Core handles this)
+- Store secrets in a managed secret store or environment variables
+- Use parameterized queries
 - Validate all user inputs
 - Enable authentication/authorization
 - Implement rate limiting
@@ -244,93 +135,70 @@ public async Task<IActionResult> Create([FromBody] Magic entity)
 
 **Branch Naming**:
 ```
-feature/add-magic-search
-fix/null-reference-magic-service
-refactor/extract-dto-mapping
+feature/<short-description>
+fix/<short-description>
+refactor/<short-description>
 ```
 
 **Pre-Commit Checklist**:
 - [ ] Code builds successfully
 - [ ] All tests pass
-- [ ] 80%+ coverage maintained
-- [ ] No console.log statements
+- [ ] Tests for the change pass
+- [ ] No debug/console statements
 - [ ] No hardcoded secrets
-- [ ] Code follows style guide
+- [ ] Code follows the style guide
 - [ ] Linter passes
 
 ### Infrastructure as Code
 
-**MANDATORY**: All Azure resources defined in Bicep. No manual portal creation.
+**MANDATORY**: All infrastructure is defined as code and version-controlled. No manual creation via a cloud portal. Deployment is automated through CI/CD.
 
-**Structure**:
-```
-infrastructure/
-├── main.bicep                 # Entry point
-├── parameters/
-│   ├── dev.bicepparam
-│   ├── staging.bicepparam
-│   └── production.bicepparam
-└── modules/
-    ├── appService.bicep
-    ├── database.bicep
-    ├── keyVault.bicep
-    └── monitoring.bicep
-```
-
-**Deployment**: Automated via Azure DevOps or GitHub Actions
+The concrete IaC tooling, directory layout, and deployment pipeline are defined in the stack overlay (`rules/<stack>.md` and the infrastructure stack skill).
 
 ---
 
 ## AI Agent Standards
 
-### Acting as Wizardworks Employees
+### Standards Apply to Agents
 
-All AI agents (Claude Code agents, subagents) working on Wizardworks projects are considered employees and must:
+All AI agents (Claude Code agents, subagents) working on this project are held to the same standard as human contributors and must:
 
 1. **Adhere to all standards** defined in this constitution
-2. **Follow architectural patterns** (Controller-Service-Repository, Public IDs, DTOs)
-3. **Practice TDD** (write tests first, 80%+ coverage)
-4. **Enforce security** (no secrets, validate inputs, use parameterized queries)
-5. **Use Infrastructure as Code** (Bicep for all Azure resources)
-6. **Follow coding style** (naming conventions, file size limits, immutability)
-7. **Respect git workflow** (proper commits, branch naming, pre-commit checks)
+2. **Follow architectural patterns** (layered architecture, public IDs, DTOs)
+3. **Ship tests with the code** (integration and e2e where it matters)
+4. **Enforce security** (no secrets, validate inputs, parameterized queries)
+5. **Use Infrastructure as Code** for all cloud resources
+6. **Follow the coding style** (naming conventions, size limits, immutability)
+7. **Respect the git workflow** (proper commits, branch naming, pre-commit checks)
 
 ### Agent Types
 
 **Architect Agent**:
 - Design system architecture
 - Evaluate technical trade-offs
-- Ensure alignment with Wizardworks stack
+- Ensure alignment with the project's chosen stack
 - Plan infrastructure deployments
 
 **Code Reviewer Agent**:
 - Review for quality and security
-- Check adherence to Wizardworks standards
+- Check adherence to these standards
 - Verify layer separation
-- Ensure Public ID and DTO usage
+- Ensure public ID and DTO usage
 
-**TDD Test Writer Agent**:
-- Write failing tests first (RED phase)
-- Define expected behavior through tests
-- Cover edge cases and error paths
-- Support both .NET and TypeScript
-
-**TDD Implementer Agent**:
-- Make failing tests pass (GREEN phase)
-- Write minimal code to satisfy tests
-- Refactor while keeping tests green
-- Ensure 80%+ coverage
+**Implementer Agent**:
+- Build one task per spawn: the least code the acceptance criterion needs and the test that proves it
+- Run the whole suite and exercise the real path
+- Report in a few lines; the main session never edits source in `/feature`
 
 ### Agent Usage
 
 **When to Use**:
 - Complex features requiring planning → Architect
+- Every implementation task in `/feature` → Implementer
 - After writing code → Code Reviewer
-- Writing tests for new feature/fix → TDD Test Writer
-- Making tests pass → TDD Implementer
 
 **How to Invoke**:
-- Via commands: `/tdd-test`, `/tdd-implement`, `/code-review`, `/plan`
+- Via commands: `/feature`, `/code-review`, `/plan`
 - Directly in Claude Code
 - As part of automated workflows
 
@@ -340,7 +208,7 @@ All AI agents (Claude Code agents, subagents) working on Wizardworks projects ar
 
 **Sequential Dependencies** (must run in order):
 ```
-/plan → architect → /tdd-test → /tdd-implement
+planner → architect → implementer (code + tests, one spawn per task)
 ```
 
 **Parallel Validation** (run simultaneously after implementation):
@@ -351,18 +219,21 @@ All AI agents (Claude Code agents, subagents) working on Wizardworks projects ar
 These validation agents work on the same code independently. Running them in parallel saves significant time without compromising quality.
 
 **Example workflow**:
-1. `/plan` (sequential)
+1. `planner` (sequential)
 2. `architect` (sequential)
-3. `/tdd-test` (sequential)
-4. `/tdd-implement` (sequential)
-5. `/code-review` + `/security-review` + `/e2e` + `/update-docs` (PARALLEL)
+3. `implementer` — code and tests together, one spawn per task (sequential)
+4. `/code-review` + `/security-review` + `/e2e` + `/update-docs` (PARALLEL)
+
+In `/feature` every one of these steps is a subagent. The main session orchestrates — task
+list, briefs, reports, commit, PR — and does not read or write source itself; that keeps the
+conversation small and runs each step on the model chosen for it.
 
 ### Self-Validation (MANDATORY)
 
 **After ANY implementation, Claude MUST validate AND fix issues found.**
 
 ```
-/tdd-implement
+implementer
      ↓
 /code-review + /security-review + /update-docs (PARALLEL)
      ↓
@@ -373,12 +244,12 @@ All clean? → DONE
 
 **Rules**:
 - Never skip validation after implementation
-- Don't just report issues - FIX THEM
+- Don't just report issues — FIX THEM
 - Re-run the review that found issues until clean
-- Verify tests pass and coverage is 80%+
+- Verify tests pass
 
-**Wrong**: `/tdd-implement` → `/code-review` reports issues → done (issues unfixed!)
-**Right**: `/tdd-implement` → `/code-review` reports issues → FIX → `/code-review` clean → done
+**Wrong**: implement → `/code-review` reports issues → done (issues unfixed!)
+**Right**: implementer → `/code-review` reports issues → implementer fixes → reviewer confirms the fixes → done
 
 ### Agent Model Selection (MANDATORY)
 
@@ -387,8 +258,9 @@ All clean? → DONE
 | Model | Agents | Why |
 |-------|--------|-----|
 | **haiku** | doc-updater, e2e-runner, build-error-resolver | Structured tasks, no reasoning needed |
-| **sonnet** | planner, code-reviewer, refactor-cleaner, tdd-test-writer | Judgment calls |
-| **opus** | architect, security-reviewer, tdd-implementer | Deep reasoning, critical decisions |
+| **sonnet** | code-reviewer, refactor-cleaner | Judgment calls |
+| **fable** | planner | Long-horizon breakdown of a whole feature |
+| **opus** | architect, security-reviewer, implementer | Deep reasoning, critical decisions — and the code itself |
 
 **Wrong**: Invoke doc-updater with `model: sonnet` (wastes 3-4x tokens)
 **Right**: Invoke doc-updater without model parameter (uses configured haiku)
@@ -409,7 +281,6 @@ Only override with documented justification. Cost optimization is mandatory.
 
 **Pre-Merge** (CI/CD):
 - All tests pass
-- 80%+ coverage
 - No security vulnerabilities
 - Code review approved
 
@@ -440,9 +311,9 @@ Only override with documented justification. Cost optimization is mandatory.
 
 When discovering new patterns or solving novel problems:
 1. Document the solution
-2. Add to appropriate skill file
-3. Share with team
-4. Update constitution if needed
+2. Add to the appropriate skill file
+3. Share with the team
+4. Update the constitution if needed
 
 ### Feedback Loop
 
@@ -460,11 +331,9 @@ When discovering new patterns or solving novel problems:
 | File | Purpose |
 |------|---------|
 | [DOC.md](DOC.md) | Complete guide to using this gallery |
-| [CONSTITUTION.md](CONSTITUTION.md) | This file - core standards |
-| [skills/backend-patterns-dotnet/SKILL.md](skills/backend-patterns-dotnet/SKILL.md) | .NET/C# backend patterns |
-| [skills/frontend-patterns-react/SKILL.md](skills/frontend-patterns-react/SKILL.md) | React/TypeScript frontend patterns |
-| [skills/infrastructure-as-code/SKILL.md](skills/infrastructure-as-code/SKILL.md) | Bicep, Docker, CI/CD |
-| [rules/testing.md](rules/testing.md) | TDD requirements and standards |
+| [CONSTITUTION.md](CONSTITUTION.md) | This file — core, stack-neutral standards |
+| `rules/<stack>.md` | Stack-specific standards for the overlay you selected |
+| [rules/testing.md](rules/testing.md) | Testing requirements and standards |
 | [rules/security.md](rules/security.md) | Security guidelines |
 | [rules/coding-style.md](rules/coding-style.md) | Code style standards |
 | [rules/git-workflow.md](rules/git-workflow.md) | Git and version control |
@@ -473,19 +342,20 @@ When discovering new patterns or solving novel problems:
 
 | Command | Purpose |
 |---------|---------|
-| `/tdd-test [feature]` | Write failing tests first (RED) |
-| `/tdd-implement [feature]` | Make tests pass (GREEN→REFACTOR) |
+| `/feature [description]` | Deliver a feature end to end — worktree, criteria and tasks from the planner, one implementer spawn per task, one review round, draft PR. Every step a subagent |
 | `/code-review [file]` | Review code for quality and standards |
-| `/plan [feature]` | Plan architecture for complex feature |
+| `/plan [feature]` | Plan architecture for a complex feature |
+| `/document [brief]` | A report, memo or proposal as a paginated A4 PDF in the organization's identity |
+| `/deck [brief]` | A pitch or presentation as a landscape slide PDF in the same identity |
+| `/diagram [brief]` | A system map, flow or architecture as a draw.io file in the same identity, drawn by the diagram-drawer agent |
 
 ### Essential Agents
 
 | Agent | When to Use |
 |-------|-------------|
 | **architect** | Planning new features, making design decisions |
-| **code-reviewer** | After writing code, before creating PR |
-| **tdd-test-writer** | Writing failing tests for new features or bug fixes |
-| **tdd-implementer** | Making tests pass, refactoring code |
+| **implementer** | Every implementation task in `/feature` — one task per spawn |
+| **code-reviewer** | After writing code, before creating a PR |
 
 ---
 
@@ -493,25 +363,21 @@ When discovering new patterns or solving novel problems:
 
 ### New Project Setup
 
-1. **Clone this repository**
-2. **Review this CONSTITUTION.md**
-3. **Read [DOC.md](DOC.md) for detailed guidance**
-4. **Set up your development environment**:
-   - Install .NET 10 SDK (always latest LTS)
-   - Install Node.js 20+
-   - Install Docker
-   - Install Azure CLI
-5. **Configure Claude Code** with Wizardworks agents and rules
-6. **Start with `/tdd-test` for first feature**
+1. **Review this CONSTITUTION.md**
+2. **Read [DOC.md](DOC.md) for detailed guidance**
+3. **Read the stack overlay** (`rules/<stack>.md`) for concrete tooling and setup
+4. **Set up your development environment** per the stack overlay
+5. **Configure Claude Code** with the project's agents and rules
+6. **Start with `/feature` for your first feature**
 
 ### For Existing Projects
 
 1. **Audit against this constitution**
 2. **Identify gaps**
-3. **Create migration plan**
+3. **Create a migration plan**
 4. **Incrementally adopt standards**
-5. **Update infrastructure to Bicep**
-6. **Achieve 80%+ test coverage**
+5. **Move infrastructure to code**
+6. **Put integration and e2e tests around the critical flows**
 
 ---
 
@@ -519,6 +385,8 @@ When discovering new patterns or solving novel problems:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3 | 2026-09-14 | Every `/feature` step runs in a subagent; the implementer agent is added and the main session no longer edits source |
+| 1.2 | 2026-09-13 | Tests ship with the code; the TDD agents and `/tdd` are retired |
 | 1.1 | 2025-01-26 | Split TDD agent into test-writer and implementer |
 | 1.0 | 2025-01-23 | Initial constitution |
 
@@ -526,17 +394,10 @@ When discovering new patterns or solving novel problems:
 
 ## Maintenance
 
-**Constitution Owner**: Engineering Leadership
+**Constitution Owner**: Engineering leadership
 **Review Cadence**: Quarterly
-**Amendment Process**: Proposal → Review → Approval → Version Update
+**Amendment Process**: Proposal → Review → Approval → Version update
 
 ---
 
-**Remember**: This constitution exists to enable rapid, high-quality software development. These standards are the foundation of our AI-first engineering culture at Wizardworks. Follow them rigorously.
-
----
-
-*"Quality is not an act, it is a habit." - Aristotle*
-
-**Wizardworks Engineering**
-*Building the Future with AI*
+**Remember**: This constitution exists to enable rapid, high-quality software development. These standards are the foundation of an AI-first engineering culture. Follow them rigorously.

@@ -2,7 +2,10 @@
 
 Every change follows the same shape: know what "done" means, build it in isolation with
 tests, get it reviewed once, ship a draft PR. How *much* gets built is governed by
-`rules/simplicity.md` — what the acceptance criteria require and nothing more.
+`rules/simplicity.md` — what the acceptance criteria require and nothing more. *Who* builds
+it, in a `/feature` run, is a subagent per step: the main session orchestrates and never
+edits source, so each step runs on the model chosen for it and the code reading stays out of
+the main context (`rules/agents-and-commands.md`).
 
 > The `/command` names below are Claude Code slash commands. On runtimes without them (Codex,
 > generic), do the same step by hand from the corresponding rules file.
@@ -23,6 +26,11 @@ tests, get it reviewed once, ship a draft PR. How *much* gets built is governed 
 4. **Verify each task locally.** Green unit tests are not proof the feature works. Run the real
    path on your machine — the UI in a real browser, the endpoint with a real request, the job with
    a real trigger — before marking a task done.
+5. **In `/feature`, delegate every step.** The planner writes the criteria and tasks, the
+   implementer builds each task, the reviewers review. The main session orchestrates: it holds
+   the task list, hands out briefs, reads reports, commits and opens the PR. It does not read or
+   edit source. Each agent carries the model chosen for its step; the main session's model and
+   context are for coordination.
 
 ## Reviews are bounded
 
@@ -53,18 +61,20 @@ what is deferred and on what — rather than looping.
 
 | Command | What it is for |
 |---------|----------------|
-| `/feature [description \| #id]` | The whole flow in one go, lean by default: one agent spawn (the code review). The planner joins when the change is large, the security reviewer when it touches a sensitive surface. |
+| `/feature [description \| #id]` | The whole flow in one go: the planner writes the criteria and tasks, the implementer builds one task per spawn, the code reviewer reviews once (the security reviewer too, when the change touches a sensitive surface). The main session only orchestrates. |
 | `/harden [target]` | Deliberate hardening of a module, diff or release — architect and security reviewer with their full checklists; findings become prioritized work items you approve. |
-| `/plan [description]` | The planner agent, for a feature with more than about five tasks or crossing layers. `/feature` calls it itself when needed. |
-| `/tdd`, `/code-review`, `/security-review`, `/e2e`, `/update-docs`, `/refactor-clean`, `/build-fix` | The individual steps, when you want one on its own. |
+| `/plan [description]` | The planner agent on its own, for a design or roadmap without the rest of the flow. `/feature` spawns it in step 1. |
+| `/code-review`, `/security-review`, `/e2e`, `/update-docs`, `/refactor-clean`, `/build-fix` | The individual steps, when you want one on its own. |
+| `/document [brief]`, `/deck [brief]`, `/diagram [brief]` | Deliverables for people, not code: a paginated A4 PDF, a landscape slide deck or an editable draw.io diagram in the organization's visual identity. Outside the feature flow; never sent by the agent. |
 
 On Claude Code, hooks enforce the cheap, observable parts (`rules/hooks.md`): inside `/feature`
-no source write outside a worktree or before the task list exists, and in any session no ending
-a turn with unreviewed code, or with a sensitive path changed and no security review.
+no source write outside a worktree, before the task list exists, or from the main session
+rather than a subagent; and in any session no ending a turn with unreviewed code, or with a
+sensitive path changed and no security review.
 
 ## Quick bug fix
 
-`/tdd` (a test that reproduces it, then the fix) → `/code-review` → draft PR.
+A test that reproduces it, the fix, the suite green → `/code-review` → draft PR.
 
 ## Continuous improvement
 

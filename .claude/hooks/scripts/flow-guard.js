@@ -1,18 +1,27 @@
 #!/usr/bin/env node
 
 /**
- * Flow guard (PreToolUse on Write|Edit|MultiEdit|NotebookEdit).
+ * Flow guard (PreToolUse on Write|Edit|MultiEdit|NotebookEdit, and on Bash).
  *
- * While a session is in `/feature` (see flow-mode.js), the two prerequisites
- * that cost nothing and lose everything when skipped are hard blocks on source
+ * While a session is in `/feature` (see flow-mode.js), four things that cost
+ * nothing to do and lose everything when skipped are hard blocks on source
  * writes. Exit 2 blocks the write and feeds the reason to the agent, which
  * does the missing step and retries.
  *
- *   worktree   — not in the main checkout on a default branch
- *   task list  — TodoWrite has been called
+ *   worktree      — not in the main checkout on a default branch
+ *   task list     — TodoWrite has been called
+ *   a plan        — the planner agent has run (step 1 of the flow: acceptance
+ *                   criteria and the task breakdown come from it, on its model)
+ *   an agent      — the write comes from a subagent (the implementer), not
+ *                   from the main session. A subagent's tool calls carry
+ *                   `agent_type` in the hook event; the main session's do not.
+ *                   The same rule covers Bash commands that edit source
+ *                   (sed -i, a python heredoc rewriting files, `cat > file`).
  *
- * Nothing else is gated here on purpose: which agents run, and when, is the
- * flow's judgment call and forcing it made small changes expensive.
+ * The flow is deliberately rigid about WHO does each step — planner, then
+ * implementer, then reviewers — and this guard enforces the two of those that
+ * are observable before a write happens. Which reviewers run is the Stop gate's
+ * business (flow-gate.js).
  *
  * Outside the flow this script is inert (exit 0). Documentation is never
  * blocked. Fails open on any error — a broken guardrail must never stop the
@@ -21,6 +30,8 @@
 
 const path = require('path');
 const S = require('./flow-state');
+
+const PLANNER = 'planner';
 
 function block(lines) {
   process.stderr.write(lines.join('\n') + '\n');
@@ -34,6 +45,11 @@ function main() {
   if (!sessionId) return 0;
 
   const input = event.tool_input && typeof event.tool_input === 'object' ? event.tool_input : {};
+
+  // Bash is only ever gated on the "an agent writes the source" rule, and only
+  // when the command visibly edits a source file.
+  if (event.tool_name === 'Bash') return guardBash(event, sessionId, input.command);
+
   const filePath = input.file_path ?? input.notebook_path;
   if (!S.isCode(filePath)) return 0;
 
@@ -68,7 +84,44 @@ function main() {
     ]);
   }
 
+  if (!(Array.isArray(entry.agents) && entry.agents.includes(PLANNER))) {
+    return block([
+      `/feature: blocked writing ${rel} — the planner has not run yet.`,
+      `Step 1 of the flow spawns the **planner** agent with the request, what the graph knows`,
+      `(\`context()\`) and the stack rules, and gets back the acceptance criteria and the ordered`,
+      `task list with how each task is verified. Expand TodoWrite from its output, then spawn`,
+      `the **implementer** per task. A small change gets a short plan — the spawn is not skipped.`,
+    ]);
+  }
+
+  if (!S.fromAgent(event)) return block(mainSessionLines(`writing ${rel}`));
+
   return 0;
+}
+
+function guardBash(event, sessionId, command) {
+  const write = S.bashSourceWrite(command);
+  if (!write) return 0;
+  if (S.fromAgent(event)) return 0;
+
+  const cwd = typeof event.cwd === 'string' ? event.cwd : process.cwd();
+  const facts = S.gitFacts(cwd);
+  if (!facts) return 0;
+
+  const entry = S.readState(facts.commonDir)[sessionId];
+  if (!entry || !entry.mode) return 0;
+
+  return block(mainSessionLines(`this command — it is ${write}`));
+}
+
+function mainSessionLines(what) {
+  return [
+    `/feature: blocked ${what} from the MAIN session.`,
+    `In this flow source is written by the **implementer** agent, not by you: spawn it with`,
+    `the task, the acceptance criterion it serves, how it is verified, and the worktree path,`,
+    `and mark the task done from its report. You keep the task list, the briefs, the commit`,
+    `and the PR — not the code. Documentation you may edit yourself.`,
+  ];
 }
 
 try {

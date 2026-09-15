@@ -14,7 +14,7 @@ Base every recommendation on the patterns in the stack overlay you selected (`ru
 1. **Clear layering** — respect the project's separation of concerns (transport/handler, business logic, data access). No layer skipping.
 2. **Stable external identifiers** — external APIs expose stable, non-sequential identifiers, never raw internal database keys.
 3. **Boundary contracts** — API inputs/outputs use explicit contract types (DTOs/schemas), not internal domain/persistence models.
-4. **Test-first** — adequate test coverage; tests written first.
+4. **Tested at the boundary** — integration tests where the change is used, e2e for critical flows.
 5. **Infrastructure as Code** — infrastructure defined declaratively, per the stack overlay.
 6. **Simplicity** — the smallest design that meets the acceptance criteria. No layer, abstraction or resource introduced for a need the criteria do not state.
 

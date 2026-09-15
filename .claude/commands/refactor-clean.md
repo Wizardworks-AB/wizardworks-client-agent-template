@@ -70,7 +70,6 @@ Before and after refactoring:
 - [ ] All tests pass before refactoring
 - [ ] Single refactoring at a time
 - [ ] All tests still pass after refactoring
-- [ ] Code coverage maintained or improved
 - [ ] No functional changes (only structural)
 - [ ] Performance not degraded
 - [ ] Documentation updated
@@ -84,15 +83,14 @@ Before and after refactoring:
 
 ## Running Refactoring
 
-**Before**: run the full test suite and capture current coverage.
+**Before**: run the full test suite; if the code you are about to move has no test around it, put an integration test around it before you start.
 
 **During**:
 1. Make one change at a time
 2. Run tests after each change
-3. Verify coverage is maintained
-4. Keep tests green
+3. Keep tests green
 
-**After**: run the full test suite again, confirm coverage is maintained, and run the project's quality/lint checks.
+**After**: run the full test suite again and run the project's quality/lint checks.
 
 ## Refactoring Guidelines
 
@@ -123,7 +121,6 @@ Before and after refactoring:
 ## Related Commands
 
 - Use `/code-review` to identify refactoring opportunities
-- Use `/tdd` to ensure tests guide refactoring
 - Use `/build-fix` if refactoring breaks the build
 
 **Remember**: Leave code better than you found it. Refactor continuously.

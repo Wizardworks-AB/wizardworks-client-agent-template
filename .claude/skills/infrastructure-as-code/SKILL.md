@@ -1,13 +1,13 @@
 ---
 name: infrastructure-as-code
-description: Wizardworks Infrastructure as Code patterns using Bicep, Docker, Azure DevOps, and GitHub Actions. As a Wizardworks employee, you must adhere to these standards.
+description: Recommended Infrastructure as Code patterns using Bicep, Docker, Azure DevOps, and GitHub Actions for this stack.
 ---
 
-# Wizardworks Infrastructure as Code
+# Infrastructure as Code
 
-Infrastructure as Code (IaC) standards and best practices for Wizardworks projects.
+Infrastructure as Code (IaC) standards and best practices.
 
-**Important**: As a Wizardworks employee/agent, you must define all infrastructure in code. No manual resource creation in Azure Portal.
+**Important**: Define all infrastructure in code. Avoid manual resource creation in the Azure Portal.
 
 ## Technology Stack
 
@@ -154,7 +154,7 @@ using '../main.bicep'
 
 param environmentName = 'dev'
 param location = 'eastus'
-param appName = 'wizardworks-magic'
+param appName = 'myapp'
 param sqlAdminUsername = 'sqladmin'
 param sqlAdminPassword = readEnvironmentVariable('SQL_ADMIN_PASSWORD', 'default-dev-password')
 ```
@@ -165,7 +165,7 @@ using '../main.bicep'
 
 param environmentName = 'production'
 param location = 'eastus'
-param appName = 'wizardworks-magic'
+param appName = 'myapp'
 param sqlAdminUsername = readEnvironmentVariable('SQL_ADMIN_USERNAME')
 param sqlAdminPassword = readEnvironmentVariable('SQL_ADMIN_PASSWORD')
 ```
@@ -232,7 +232,7 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
     httpsOnly: true
     siteConfig: {
       alwaysOn: true
-      linuxFxVersion: 'DOCKER|${containerRegistryName}.azurecr.io/wizardworks-api:latest'
+      linuxFxVersion: 'DOCKER|${containerRegistryName}.azurecr.io/myapp-api:latest'
       appSettings: [
         {
           name: 'DOCKER_REGISTRY_SERVER_URL'
@@ -411,18 +411,18 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy csproj and restore dependencies
-COPY ["Wizardworks.API/Wizardworks.API.csproj", "Wizardworks.API/"]
-COPY ["Wizardworks.Core/Wizardworks.Core.csproj", "Wizardworks.Core/"]
-RUN dotnet restore "Wizardworks.API/Wizardworks.API.csproj"
+COPY ["MyApp.API/MyApp.API.csproj", "MyApp.API/"]
+COPY ["MyApp.Core/MyApp.Core.csproj", "MyApp.Core/"]
+RUN dotnet restore "MyApp.API/MyApp.API.csproj"
 
 # Copy everything else and build
 COPY . .
-WORKDIR "/src/Wizardworks.API"
-RUN dotnet build "Wizardworks.API.csproj" -c Release -o /app/build
+WORKDIR "/src/MyApp.API"
+RUN dotnet build "MyApp.API.csproj" -c Release -o /app/build
 
 # Publish stage
 FROM build AS publish
-RUN dotnet publish "Wizardworks.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "MyApp.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
@@ -435,7 +435,7 @@ RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
 USER appuser
 
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Wizardworks.API.dll"]
+ENTRYPOINT ["dotnet", "MyApp.API.dll"]
 ```
 
 ### Multi-Stage Dockerfile (React/TypeScript)
@@ -486,12 +486,12 @@ services:
       - "5001:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=WizardworksDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True
+      - ConnectionStrings__DefaultConnection=Server=db;Database=AppDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True
       - OpenAI__ApiKey=${OPENAI_API_KEY}
     depends_on:
       - db
     networks:
-      - wizardworks-network
+      - app-network
     volumes:
       - ./backend:/app
       - /app/bin
@@ -506,7 +506,7 @@ services:
     environment:
       - VITE_API_BASE_URL=http://localhost:5000
     networks:
-      - wizardworks-network
+      - app-network
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -522,13 +522,13 @@ services:
     volumes:
       - sqlserver-data:/var/opt/mssql
     networks:
-      - wizardworks-network
+      - app-network
 
 volumes:
   sqlserver-data:
 
 networks:
-  wizardworks-network:
+  app-network:
     driver: bridge
 ```
 
@@ -547,13 +547,13 @@ trigger:
       - docs/**
 
 variables:
-  - group: wizardworks-$(Build.SourceBranchName)
+  - group: myapp-$(Build.SourceBranchName)
   - name: buildConfiguration
     value: 'Release'
   - name: containerRegistry
-    value: 'acrwizardworks.azurecr.io'
+    value: 'acrmyapp.azurecr.io'
   - name: imageName
-    value: 'wizardworks-api'
+    value: 'myapp-api'
   - name: imageTag
     value: '$(Build.BuildId)'
 
@@ -596,14 +596,6 @@ stages:
             inputs:
               codeCoverageTool: 'Cobertura'
               summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
-
-          - script: |
-              COVERAGE=$(grep -oP 'line-rate="\K[^"]+' coverage.cobertura.xml | awk '{sum+=$1} END {print sum*100}')
-              if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-                echo "Coverage $COVERAGE% is below 80%"
-                exit 1
-              fi
-            displayName: 'Check code coverage threshold'
 
       - job: BuildFrontend
         displayName: 'Build React Frontend'
@@ -695,7 +687,7 @@ stages:
                   displayName: 'Deploy to App Service'
                   inputs:
                     azureSubscription: 'Azure-ServiceConnection'
-                    appName: 'app-wizardworks-production'
+                    appName: 'app-myapp-production'
                     containers: '$(containerRegistry)/$(imageName):$(imageTag)'
 ```
 
@@ -714,8 +706,8 @@ on:
 env:
   DOTNET_VERSION: '9.0.x'
   NODE_VERSION: '20.x'
-  CONTAINER_REGISTRY: acrwizardworks.azurecr.io
-  IMAGE_NAME: wizardworks-api
+  CONTAINER_REGISTRY: acrmyapp.azurecr.io
+  IMAGE_NAME: myapp-api
 
 jobs:
   build-backend:
@@ -808,14 +800,14 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          resourceGroupName: rg-wizardworks-production
+          resourceGroupName: rg-myapp-production
           template: ./infrastructure/main.bicep
           parameters: ./infrastructure/parameters/production.bicepparam sqlAdminPassword=${{ secrets.SQL_ADMIN_PASSWORD }}
 
       - name: Deploy to App Service
         uses: azure/webapps-deploy@v2
         with:
-          app-name: app-wizardworks-production
+          app-name: app-myapp-production
           images: ${{ env.CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 ```
 
@@ -824,13 +816,13 @@ jobs:
 ```bash
 # Deploy to development
 az deployment group create \
-  --resource-group rg-wizardworks-dev \
+  --resource-group rg-myapp-dev \
   --template-file infrastructure/main.bicep \
   --parameters infrastructure/parameters/dev.bicepparam
 
 # Deploy to production
 az deployment group create \
-  --resource-group rg-wizardworks-production \
+  --resource-group rg-myapp-production \
   --template-file infrastructure/main.bicep \
   --parameters infrastructure/parameters/production.bicepparam \
   --parameters sqlAdminPassword=$SQL_ADMIN_PASSWORD
@@ -840,12 +832,12 @@ az bicep build --file infrastructure/main.bicep
 
 # What-if deployment (preview changes)
 az deployment group what-if \
-  --resource-group rg-wizardworks-dev \
+  --resource-group rg-myapp-dev \
   --template-file infrastructure/main.bicep \
   --parameters infrastructure/parameters/dev.bicepparam
 ```
 
-## Wizardworks Infrastructure Best Practices
+## Infrastructure Best Practices
 
 1. **All Resources in Bicep**: Never create resources manually in portal
 2. **Environment-Specific Parameters**: Separate parameter files for each environment
@@ -858,4 +850,4 @@ az deployment group what-if \
 9. **Documentation**: README in infrastructure folder
 10. **Security**: Managed identities, HTTPS only, minimal permissions
 
-**Remember**: Infrastructure as Code is mandatory at Wizardworks. All Azure resources must be defined in Bicep and deployed via automated pipelines.
+**Remember**: All Azure resources should be defined in Bicep and deployed via automated pipelines.

@@ -12,6 +12,7 @@ Nothing to install — the wiring ships in this template's `.claude/settings.jso
 | Event | What happens |
 |-------|--------------|
 | `SessionStart` | `check-template-update.js` asks Fae whether a newer template version exists |
+| `PostToolUse` (any `mcp__.*` tool) | `check-template-update.js graph-call` — the same check, at most once an hour, whenever the agent talks to Fae; the notice comes back as `additionalContext` |
 | `PreToolUse` (Write/Edit) | `dispatch.js pre` scans the PENDING content for hardcoded secrets and **blocks the write** (exit 2) on a critical hit — the secret never lands on disk |
 | `PostToolUse` (Write/Edit) | `dispatch.js post` runs the applicable checks and feeds any findings back to the agent (exit 2) so it fixes them immediately |
 
@@ -30,7 +31,7 @@ hook must never make the agent unable to write files. Requires Node 18+ on PATH
   `.git`. Exempts `.git/`, `node_modules/`, the agent template itself, and
   documentation by extension.
 
-Those are the only universal checks. Workflow reminders (test coverage, TDD-first,
+Those are the only universal checks. Workflow reminders (tests,
 security/code review, Fae knowledge-graph triggers) are enforced by the rules
 files — see `rules/testing.md`, `rules/workflow.md`, `rules/security.md`, and
 `rules/fae.md` — not by hook execution.

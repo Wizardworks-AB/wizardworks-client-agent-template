@@ -6,7 +6,7 @@ argument-hint: [feature description]
 
 # Planning Command
 
-This command initiates the planning workflow for complex features. Use this BEFORE starting TDD to ensure proper design and architecture.
+This command initiates the planning workflow for complex features. Use this BEFORE implementation to ensure proper design and architecture.
 
 ## How to run it — delegate, do not plan inline
 
@@ -104,7 +104,7 @@ Create a phased approach, for example:
 3. **Business logic** — services and rules
 4. **Data access** — repositories/queries, migrations
 5. **Frontend integration** — UI, data fetching, error handling
-6. **Testing & validation** — unit/integration/E2E, meet coverage threshold
+6. **Testing & validation** — integration tests at the boundary, e2e for the critical flow
 
 ## When to Use This Command
 
@@ -115,7 +115,7 @@ Create a phased approach, for example:
 - Performance optimization projects
 - Infrastructure changes
 
-**When NOT to use**: Simple bug fixes or small feature additions — use `/tdd` directly instead.
+**When NOT to use**: inside `/feature`, which spawns the planner itself in step 1 — run `/plan` on its own when you want the design without the rest of the flow.
 
 ## Architecture Principles
 
@@ -124,7 +124,7 @@ All plans should follow the project's core principles. Common ones:
 1. **Layered architecture** — keep transport, business logic, and data access separated; don't skip layers.
 2. **Stable public identifiers** — expose public IDs externally, never internal/database IDs.
 3. **Boundary contracts** — use dedicated types (DTOs) at API boundaries; don't leak internal models.
-4. **Test-driven development** — tests defined before implementation; meet the project coverage threshold.
+4. **Tests with the code** — integration and e2e where they carry their weight; no coverage percentage.
 5. **Infrastructure as code** — resources defined in versioned templates, no manual portal changes.
 
 ## Plan Checklist
@@ -143,7 +143,7 @@ Before starting implementation:
 
 ## Related Commands
 
-- Use `/tdd` after planning to implement each phase
+- Use `/feature` to implement the phases
 - Use `/code-review` during implementation
 - Use `/security-review` for security-specific features
 - Use `/build-fix` if infrastructure deployment fails

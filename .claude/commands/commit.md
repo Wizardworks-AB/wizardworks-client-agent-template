@@ -51,7 +51,7 @@ Spawn the code-reviewer agent to review changes against the project's standards:
 - Patterns & Practices compliance
 - Security issues
 - Architecture adherence
-- Test coverage
+- Tests for the change
 
 Focus on the **diff only** — don't review the entire codebase.
 
@@ -111,7 +111,7 @@ If review passed (or user chose to commit anyway):
 - CSR pattern: ✅
 - Public IDs: ✅
 - DTOs: ✅
-- Tests: ✅ (92% coverage)
+- Tests: ✅
 - Security: ✅
 
 ### Documentation

@@ -25,7 +25,7 @@ const MODES = { FEATURE: 'feature' };
 
 /** Documentation and metadata — never treated as source. */
 const NOT_CODE =
-  /(^|[\\/])(\.git|node_modules|dist|bin|obj)[\\/]|\.(md|mdx|txt|rst|json5)$|(^|[\\/])(README|CHANGELOG|LICENCE|LICENSE|CONTRIBUTING)(\.[\w]+)?$/i;
+  /(^|[\\/])(\.git|node_modules|dist|bin|obj)[\\/]|\.(md|mdx|txt|rst|json5|typ|drawio)$|(^|[\\/])(README|CHANGELOG|LICENCE|LICENSE|CONTRIBUTING)(\.[\w]+)?$/i;
 
 /**
  * Paths on the security-sensitive surface — the list in rules/workflow.md that
@@ -63,6 +63,43 @@ function onSurface(filePath) {
 
 function isTestRun(command) {
   return typeof command === 'string' && TEST_RUNNERS.test(command);
+}
+
+/**
+ * A hook event raised by a tool call made inside a subagent carries
+ * `agent_type` (and `agent_id`); the main conversation's calls carry neither.
+ * The session id is the same for both, which is why this is the discriminator.
+ */
+function fromAgent(event) {
+  return Boolean(event && typeof event.agent_type === 'string' && event.agent_type);
+}
+
+/** In-place editors and patch tools: the command writes whatever it names. */
+const INPLACE_EDIT = /\b(sed|perl)\s+(?:-\S+\s+)*-[A-Za-z]*i\b|\bsed\s+(?:\S+\s+)*--in-place\b|\bgit\s+apply\b|(^|[\s;&|])patch\s+/;
+/** Inline programs that write files (python heredocs, node -e, ...). */
+const SCRIPTED_WRITE = /write_text\s*\(|write_bytes\s*\(|writeFileSync\s*\(|writeFile\s*\(|appendFileSync\s*\(|\bopen\s*\([^)]*,\s*['"][wa]/;
+/** Redirects and tee: `> target`, `>> target`, `tee [-a] target`. */
+const REDIRECT = /(?:^|[^<>&\d=-])>{1,2}\s*(["']?)([^\s"'|;&<>]+)\1|\btee\s+(?:-\S+\s+)*(["']?)([^\s"'|;&<>]+)\3/g;
+/** Scratch locations and by-products — never source, whatever the name. */
+const SCRATCH_TARGET = /^(\/tmp\/|\/private\/|\/var\/folders\/|\$\{?(TMPDIR|TMP|TEMP|SCRATCH))|\.(patch|diff|log|out)$/i;
+
+/**
+ * Does this shell command write a source file? Returns a short description of
+ * the write it found, or null. Heuristic on purpose — it exists to catch the
+ * obvious ways of editing source from a shell (sed -i, a python heredoc that
+ * rewrites files, `cat > file`), not to sandbox the shell. Documentation and
+ * non-file targets never count; `isCode` decides what is source.
+ */
+function bashSourceWrite(command) {
+  if (typeof command !== 'string') return null;
+  if (INPLACE_EDIT.test(command)) return 'an in-place edit (sed -i / perl -i / patch)';
+  if (SCRIPTED_WRITE.test(command)) return 'an inline script that writes files';
+  for (const m of command.matchAll(REDIRECT)) {
+    const target = m[2] ?? m[4];
+    if (!target || target.startsWith('&') || target.startsWith('/dev/') || SCRATCH_TARGET.test(target)) continue;
+    if (isCode(target)) return `a redirect into ${target}`;
+  }
+  return null;
 }
 
 /**
@@ -180,6 +217,8 @@ module.exports = {
   isCode,
   onSurface,
   isTestRun,
+  fromAgent,
+  bashSourceWrite,
   gitFacts,
   statePath,
   readState,

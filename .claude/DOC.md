@@ -7,7 +7,7 @@
 This toolkit is an intelligent development kit for AI-assisted coding. It provides:
 
 - 🎯 **AI Agents** - Specialists for planning, coding, testing, security, and deployment
-- ⚡ **Commands** - Quick shortcuts for common workflows (`/tdd`, `/code-review`, etc.)
+- ⚡ **Commands** - Quick shortcuts for common workflows (`/feature`, `/code-review`, etc.)
 - 📋 **Rules** - Coding and security standards
 - 🔄 **Contexts** - Execution environments for dev, review, and research
 - 🛡️ **Hooks** - Automated guards preventing problematic code
@@ -35,7 +35,7 @@ Provide a curated set of AI patterns and practices so your team can:
 
 - 💡 Rapidly implement features following proven architectural patterns
 - ✅ Maintain consistent code quality and standards across projects
-- 🎯 Enforce test-driven development (TDD) and code review best practices
+- 🎯 Enforce tested code and code review best practices
 - 🔒 Ensure security, scalability, and maintainability
 - 🤖 Integrate Claude (via Claude Code) directly into development workflows
 - 👥 Enable both individual developers and teams to work efficiently with consistent tooling
@@ -58,7 +58,7 @@ YOUR MAIN CONVERSATION (200K context budget)
 ├─ Your reviews
 └─ STAYS CLEAN AND FOCUSED
 
-    ↓ When you invoke /tdd, /code-review, /security-review, etc.
+    ↓ When you invoke /plan, /code-review, /security-review, etc.
 
 AGENT RUNS IN SEPARATE CONTEXT (100K+ budget per agent)
 ├─ Agent reads 50 files? Uses agent's context, not yours
@@ -89,12 +89,6 @@ You invoke /plan
   └─ Planner generates plan: Uses AGENT'S CONTEXT ✅
   └─ You receive plan summary: ~2K tokens in YOUR context
   └─ YOUR context cost: ~2K tokens
-
-You invoke /tdd implement feature
-  └─ TDD Agent reads codebase: Uses AGENT'S CONTEXT ✅
-  └─ TDD Agent writes tests: Uses AGENT'S CONTEXT ✅
-  └─ You receive guidance: ~3K tokens in YOUR context
-  └─ YOUR context cost: ~3K tokens
 
 You invoke /code-review
   └─ Reviewer reads all your code: Uses AGENT'S CONTEXT ✅
@@ -128,11 +122,14 @@ The table below shows **estimated typical savings** for various workflows. Your 
 - You need parallel analysis (multiple agents at once)
 
 #### ❌ Do Work Directly When:
-- Simple single-file edits
-- Quick questions about specific code
-- You're already deep in a file and making changes
-- Minimal context is needed
-- You want immediate iterative feedback
+- A quick question about a specific line, outside a flow
+- A genuine one-liner outside `/feature` (fix, test, `/code-review`, PR)
+- Documentation you are already writing
+
+Inside `/feature` there is no "directly": every step — planning, each implementation task,
+verification, review — is a subagent spawn, and the main session only orchestrates. That is
+what keeps the conversation small over a long feature and what lets each step run on the
+model chosen for it.
 
 ### Parallel Execution Advantage
 
@@ -143,7 +140,7 @@ START TASK
     ↓
 YOU invoke /plan                     [Plan Agent: 100K context] ↓
 YOU invoke /security-review         [Security Agent: 100K context] ↓
-YOU invoke /tdd implement          [TDD Agent: 100K context] ↓
+YOU invoke /code-review             [Review Agent: 100K context] ↓
     ↓
 All 3 run in parallel, each with independent context
 All 3 complete without interfering
@@ -157,7 +154,7 @@ YOUR estimated remaining context: ~185K tokens for other work
 1. **Let agents do exploration work**: Use `/plan` to explore requirements
 2. **Delegate heavy analysis**: Use `/code-review` for detailed feedback
 3. **Use agents for verification**: Use `/e2e`, `/security-review` for validation
-4. **Save your context for code work**: Keep your context for implementation
+4. **Delegate the code too**: in `/feature` the implementer agent writes each task; your context holds the task list and its reports, not the files
 5. **Parallel operations**: Invoke multiple agents simultaneously
 6. **Review agent outputs in main conversation**: Summarize findings, iterate
 
@@ -169,7 +166,7 @@ Skills are deep technical reference documentation for a specific technology area
 
 **The `core` toolkit ships no stack skill.** Stack skills are provided by the **stack overlay** you selected when you downloaded this toolkit (for example `dotnet`, `react`, or `azure`). If you selected an overlay, its skills appear under `skills/` alongside this guide; if you selected none, the agents fall back to stack-neutral guidance.
 
-Core does ship two stack-neutral skills: `meeting-capture` — recording a meeting (via the Fae Meeting Recorder bot or a local recording tool), transcribing it, and saving the notes to the knowledge graph with the full transcript attached to the meeting node — and `prototype-scan` — turning a customer prototype repo's recent commits into screenshot-backed Feature/User Story drafts that you approve before they are created on your board (entry point: `/prototype-scan`).
+Core does ship five stack-neutral skills: `meeting-capture` — recording a meeting (via the Fae Meeting Recorder bot or a local recording tool), transcribing it, and saving the notes to the knowledge graph with the full transcript attached to the meeting node; `prototype-scan` — turning a customer prototype repo's recent commits into screenshot-backed Feature/User Story drafts that you approve before they are created on your board (entry point: `/prototype-scan`); `document` — a paginated A4 report, memo, proposal or estimate as a PDF (entry point: `/document`); `deck` — a landscape slide deck as a PDF (entry point: `/deck`); and `brand` — the visual identity behind both, where you set the organization's logo, colours and name once. Documents and decks are written in Typst and compiled locally; see `skills/document/SKILL.md` for the one-time setup.
 
 To add or change stack skills later, re-download with the appropriate overlay selected, or drop your own `skills/<name>/SKILL.md` into the toolkit.
 
@@ -182,7 +179,7 @@ To add or change stack skills later, re-download with the appropriate overlay se
 **CLAUDE.md** is the master configuration file that defines how the team builds software. It establishes:
 
 - The 7-step workflow: PLAN → DESIGN → IMPLEMENT → REVIEW → SECURE → VERIFY → DOCUMENT
-- Standards (TDD, coverage targets, code review, security review)
+- Standards (tests with the code, code review, security review)
 - How the agents and hooks work together
 
 When you start Claude Code in your project, CLAUDE.md tells it exactly how to work.
@@ -195,7 +192,7 @@ Each agent includes a **Hook Integration** section that shows which hooks automa
 
 ### What Are Skills?
 
-**Skills** are deep technical reference documentation defining patterns and standards for a specific technology area. Stack skills are provided by the stack overlay (see above); core ships the stack-neutral `meeting-capture` and `prototype-scan` skills.
+**Skills** are deep technical reference documentation defining patterns and standards for a specific technology area. Stack skills are provided by the stack overlay (see above); core ships the stack-neutral `meeting-capture`, `prototype-scan`, `document`, `deck` and `brand` skills.
 
 ### What Are Commands?
 
@@ -250,13 +247,12 @@ This means fewer mistakes make it to production - agents catch issues during dev
 │   ├── architect.md                 # 🏗️  Software architecture specialist
 │   ├── build-error-resolver.md      # 🔧 Build failure diagnostics
 │   ├── code-reviewer.md             # 👀 Code quality and standards enforcement
+│   ├── diagram-drawer.md            # 🗺  draw.io diagrams from an inventory (Fable)
 │   ├── doc-updater.md               # 📚 Documentation maintenance
 │   ├── e2e-runner.md                # 🧪 End-to-end test execution
 │   ├── planner.md                   # 📋 Feature planning and requirements
 │   ├── refactor-cleaner.md          # 🧹 Code refactoring assistant
-│   ├── security-reviewer.md         # 🔒 Security vulnerability analysis
-│   ├── tdd-implementer.md           # 🟢 Make failing tests pass (GREEN→REFACTOR)
-│   └── tdd-test-writer.md           # 🔴 Write failing tests first (RED)
+│   └── security-reviewer.md         # 🔒 Security vulnerability analysis
 │
 ├── commands/                        # Quick-access commands
 │   ├── build-fix.md                 # /build-fix workflow
@@ -269,7 +265,6 @@ This means fewer mistakes make it to production - agents catch issues during dev
 │   ├── refactor-clean.md            # /refactor-clean workflow
 │   ├── retrospective.md             # /retrospective workflow
 │   ├── security-review.md           # /security-review workflow
-│   ├── tdd.md                       # /tdd workflow
 │   ├── update-docs.md               # /update-docs workflow
 │   └── update-template.md           # /update-template workflow
 │
@@ -290,24 +285,26 @@ This means fewer mistakes make it to production - agents catch issues during dev
 │   ├── review.md                    # Code review environment
 │   └── research.md                  # Research/exploration environment
 │
-├── docs/                            # Deep-dive guides
-│   └── tdd-playbook.md              # Full TDD methodology
-│
 ├── hooks/                           # Automated quality gates (Claude Code hooks)
 │   ├── hooks.json                   # Documents the universal ruleset
 │   ├── README.md                    # How the hook system works
 │   ├── scripts/
 │   │   ├── check-secrets.js         # Universal secret scan (blocking)
 │   │   ├── check-worktree.js        # Universal worktree guard (warning)
-│   │   ├── check-template-update.js # SessionStart template-update check
+│   │   ├── check-template-update.js # Template-update check (SessionStart + hourly on MCP calls)
 │   │   ├── dispatch.js              # Hook dispatcher (wired via settings.json)
 │   │   └── (check-*.js)             # Stack-overlay checks, when a stack was selected
 │   └── stacks/                      # <stack>.json check fragments (overlay-provided)
 │
 ├── plans/                           # Feature plans and decision records
 │
-└── skills/                          # Stack skills — provided by the selected stack overlay
-    └── (absent in core; populated by the dotnet/react/azure overlay)
+└── skills/                          # Core skills + stack skills from the selected overlay
+    ├── meeting-capture/             # Record, transcribe, save a meeting to the graph
+    ├── prototype-scan/              # Prototype commits → work item drafts
+    ├── document/                    # /document — paginated A4 PDF
+    ├── deck/                        # /deck — landscape slide PDF
+    ├── brand/                       # Visual identity + Typst library for both
+    └── (stack skills, when a stack overlay was selected)
 ```
 
 ---
@@ -317,9 +314,9 @@ This means fewer mistakes make it to production - agents catch issues during dev
 | Category | Count | Purpose |
 |----------|-------|---------|
 | **CLAUDE.md** | 1 | Master configuration - the development standard |
-| **Agents** | 10 | Specialized AI roles (each with Hook Integration) |
-| **Skills** | Overlay-provided | Deep technical reference (from the stack overlay; none in core) |
-| **Commands** | 11 | Quick-access workflow shortcuts |
+| **Agents** | 10 | Specialized AI roles — nine for the engineering flow, one that draws diagrams |
+| **Skills** | 6 core + overlay | Meeting capture, prototype scan, document, deck, diagram, brand — plus the stack overlay's technical reference |
+| **Commands** | 17 | Quick-access workflow shortcuts |
 | **Rules** | 8 | Standards and requirements |
 | **Contexts** | 3 | Execution environments with specific rules |
 | **Hooks** | 1 universal + overlay checks + SessionStart update check | Automated quality and security gates |
@@ -365,7 +362,7 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - ✅ Architectural patterns (e.g. layered/Controller-Service-Repository)
 - ✅ Public ID usage (never database IDs)
 - ✅ DTO compliance
-- ✅ Test coverage targets
+- ✅ Tests for the change
 - ✅ Security vulnerabilities
 - ✅ Type safety
 - ✅ Async/concurrency patterns
@@ -375,39 +372,22 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - 🟠 **HIGH**: Code quality, performance, type safety
 - 🟡 **MEDIUM**: Best practices, accessibility, documentation
 
-#### 3. 🔴 TDD Test Writer Agent
-**File**: `agents/tdd-test-writer.md`
+#### 3. 🔨 Implementer Agent
+**File**: `agents/implementer.md`
 
-**Role**: Test-Driven Development specialist writing failing tests FIRST (the RED phase). Invoked by `/tdd` before any implementation code exists.
+**Role**: Builds one task per spawn inside `/feature` — the least code the acceptance criterion needs and the test that proves it.
 
 **When to Use**:
-- Starting new features (PROACTIVELY)
-- Fixing bugs (reproduce with a failing test)
-- **ANY** time before writing new code
+- Every implementation task in `/feature` (the flow spawns it; one task per spawn)
+- Fixing the findings a review round produced
 
-**Key Responsibilities**:
-- Define expected behavior through failing tests
-- Cover edge cases and error paths before implementation
-- Write comprehensive tests (unit, integration, E2E)
-- Support your project's language and framework
+**What it does**:
+- Reads the brief and the neighbouring code in its own context
+- Writes code and test in whichever order is fastest, runs the whole suite
+- Exercises the real path once against local or disposable resources
+- Reports in under twenty lines — the main session never opens the files
 
-#### 4. 🟢 TDD Implementer Agent
-**File**: `agents/tdd-implementer.md`
-
-**Role**: Test-Driven Development specialist making the failing tests pass (GREEN), then refactoring (REFACTOR). Invoked by `/tdd` after the tests exist.
-
-**The TDD Cycle** (`/tdd` drives all of it):
-1. 🔴 **RED** - Write failing test (tdd-test-writer)
-2. 🟢 **GREEN** - Write minimal implementation (tdd-implementer)
-3. 🔵 **REFACTOR** - Improve code quality (tdd-implementer)
-4. ✅ **VERIFY** - Check coverage target
-
-**Key Responsibilities**:
-- Write minimal code to satisfy the tests — no more
-- Refactor while keeping tests green
-- Ensure coverage targets are met
-
-#### 5. 📋 Planner Agent
+#### 4. 📋 Planner Agent
 **File**: `agents/planner.md`
 
 **Role**: Feature planning specialist creating detailed requirements and roadmaps.
@@ -426,7 +406,7 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - Implementation timeline
 - API contracts and data models
 
-#### 6. 🔒 Security Reviewer Agent
+#### 5. 🔒 Security Reviewer Agent
 **File**: `agents/security-reviewer.md`
 
 **Role**: Security specialist identifying vulnerabilities and enforcing security standards.
@@ -446,7 +426,7 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - XSS vulnerabilities
 - Security headers
 
-#### 7. 🔧 Build Error Resolver Agent
+#### 6. 🔧 Build Error Resolver Agent
 **File**: `agents/build-error-resolver.md`
 
 **Role**: Build diagnostics specialist fixing compilation and runtime errors.
@@ -465,7 +445,7 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - Build performance optimization
 - Dependency updates
 
-#### 8. 🧪 E2E Runner Agent
+#### 7. 🧪 E2E Runner Agent
 **File**: `agents/e2e-runner.md`
 
 **Role**: End-to-end testing specialist executing and debugging workflows.
@@ -484,7 +464,7 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - Create new E2E tests
 - Manage test environments
 
-#### 9. 🧹 Refactor Cleaner Agent
+#### 8. 🧹 Refactor Cleaner Agent
 **File**: `agents/refactor-cleaner.md`
 
 **Role**: Code refactoring specialist improving structure without changing behavior.
@@ -503,7 +483,7 @@ Agents are specialized AI roles that guide developers through complex workflows.
 - Improve readability
 - Ensure behavior is maintained
 
-#### 10. 📚 Doc Updater Agent
+#### 9. 📚 Doc Updater Agent
 **File**: `agents/doc-updater.md`
 
 **Role**: Documentation specialist keeping docs synchronized with code.
@@ -524,6 +504,26 @@ Agents are specialized AI roles that guide developers through complex workflows.
 
 ---
 
+#### 10. 🗺 Diagram Drawer Agent
+**File**: `agents/diagram-drawer.md`
+
+**Role**: Turns a content inventory (boxes, arrows, groups) into a draw.io diagram in the organization's visual identity. The drawing step of `/diagram`.
+
+**When to Use**:
+- A system map, integration flow, target architecture or process loop is needed
+- A diagram for a `/document` or `/deck` (exported as PNG)
+- Spawned by `/diagram`; the main session writes the inventory and never the XML
+
+**Deliverables**:
+- One `.drawio` file following `skills/diagram/STYLE.md`
+- `check-drawio.mjs` passing (fonts, `html=1`, z-order, ids, connections)
+- A PNG preview when draw.io's command line is on the machine
+- A short report with what could not be placed or seems missing
+
+Runs on Fable: long, exact XML laid out in one pass, kept out of the main context.
+
+---
+
 ### Skills (Overlay-Provided)
 
 Skills define technical patterns and standards for a specific technology area — backend, frontend, or infrastructure. They are **not part of the core toolkit**; they are supplied by the stack overlay you selected at download (`dotnet`, `react`, `azure`, etc.).
@@ -534,15 +534,14 @@ Skills define technical patterns and standards for a specific technology area �
 
 ---
 
-### Commands (11 Total)
+### Commands (17 Total)
 
 Commands provide quick-access workflows using slash command syntax.
 
 | Command | Agent | Syntax | When to Use |
 |---------|-------|--------|------------|
-| **`/feature`** | Code Reviewer (+ Planner if large, + Security Reviewer if sensitive) | `/feature [description \| work item id]` | Any feature — the whole flow in one go, lean by default |
+| **`/feature`** | Planner → Implementer (one per task) → Code Reviewer (+ Security Reviewer if sensitive) | `/feature [description \| work item id]` | Any feature — the whole flow in one go, every step a subagent |
 | **`/harden`** | Architect + Security Reviewer | `/harden [module \| path \| work item id \| release]` | Deliberate hardening — findings become work items you approve |
-| **`/tdd`** | TDD Test Writer + TDD Implementer | `/tdd [implement\|fix\|refactor] [description]` | Starting any code work |
 | **`/code-review`** | Code Reviewer | `/code-review` | Code complete, before merge |
 | **`/plan`** | Planner | `/plan [feature description]` | Before implementation starts |
 | **`/security-review`** | Security Reviewer | `/security-review` | Before production deployment |
@@ -550,6 +549,11 @@ Commands provide quick-access workflows using slash command syntax.
 | **`/e2e`** | E2E Runner | `/e2e [run\|debug] [test-name]` | Before releases, verify flows |
 | **`/refactor-clean`** | Refactor Cleaner | `/refactor-clean [description]` | Code smells found |
 | **`/update-docs`** | Doc Updater | `/update-docs` | After major changes |
+| **`/prototype-scan`** | — | `/prototype-scan [repo] [--since sha]` | Turn prototype commits into work item drafts you approve |
+| **`/document`** | — | `/document [what, for whom] [--lang sv\|en]` | A report, memo, proposal or estimate as a paginated A4 PDF |
+| **`/deck`** | — | `/deck [what, for whom] [--lang sv\|en]` | A pitch or presentation as a landscape slide PDF |
+| **`/diagram`** | Diagram Drawer | `/diagram [what it shows, for whom] [--lang sv\|en]` | A system map, flow or architecture as an editable draw.io file |
+| **`/report-worklog`** | — | `/report-worklog` | Log this session's work for time reporting |
 | **`/commit`** | — | `/commit` | Validate, document, and commit + push |
 | **`/retrospective`** | — | `/retrospective` | End of session/feature — save learnings |
 | **`/update-template`** | — | `/update-template` | Pull a newer published agent-template version from Fae |
@@ -574,18 +578,12 @@ Language-specific naming, file-size, and formatting conventions are documented i
 #### 2. ✅ Testing
 **File**: `rules/testing.md`
 
-**Requirement**: Meet the team's coverage target (mandatory)
+**Requirement**: Every change ships with the tests that prove it (mandatory). No coverage percentage.
 
-**Test Types**:
-1. 🔹 **Unit Tests** - Individual functions/methods with mocked dependencies
-2. 🔸 **Integration Tests** - API endpoints against a test database
-3. 🔺 **E2E Tests** - Critical user flows
-
-**Coverage is Measured**:
-- ✅ Code execution paths
-- ✅ Error scenarios
-- ✅ Edge cases and boundaries
-- ✅ Concurrent operations
+**Where to test**:
+1. 🔸 **Integration Tests** - The default: the endpoint, query or handler across a real boundary
+2. 🔺 **E2E Tests** - Critical user flows
+3. 🔹 **Unit Tests** - Only where the logic is intricate
 
 #### 3. 🔒 Security
 **File**: `rules/security.md`
@@ -623,7 +621,6 @@ Closes #123
 **PR Requirements**:
 - ✅ All tests passing
 - ✅ Code review approval
-- ✅ Coverage target maintained
 - ✅ No merge conflicts
 
 #### 5. 🔁 Workflow
@@ -634,7 +631,7 @@ The mandatory 7-step development workflow: PLAN → DESIGN → IMPLEMENT → REV
 #### 6. 🤖 Agents and Commands
 **File**: `rules/agents-and-commands.md`
 
-Reference for the 10 specialist agents and 11 commands, parallel-execution guidance, and agent model selection.
+Reference for the 9 specialist agents and 12 commands, parallel-execution guidance, and agent model selection.
 
 #### 7. 🛡️ Hooks
 **File**: `rules/hooks.md`
@@ -684,6 +681,7 @@ Hooks are automated quality and security gates. They are **Claude Code hooks** (
 | Event | What runs |
 |-------|-----------|
 | `SessionStart` | Template Update Check — asks Fae whether a newer template version was published |
+| `PostToolUse` (any `mcp__.*` tool) | Template Update Check again, at most once an hour, whenever the agent talks to Fae — a long session hears about a new template without a restart |
 | `PreToolUse` (Write/Edit) | `dispatch.js pre` — scans the pending content for hardcoded secrets and 🛑 **blocks the write** on a critical hit |
 | `PostToolUse` (Write/Edit) | `dispatch.js post` — runs the universal secret scan plus any stack-overlay checks; findings are fed back to the agent for immediate fixing |
 
@@ -729,11 +727,11 @@ START
   └─ Infrastructure planned
   ↓
 3️⃣  IMPLEMENTATION (Days 2-5)
-  /tdd implement each feature
-  ├─ Write failing test (RED)
-  ├─ Write minimal implementation (GREEN)
-  ├─ Improve code quality (REFACTOR)
-  └─ Verify coverage target (VERIFY)
+  Implementer agent, one spawn per task
+  ├─ The least code the criterion needs
+  ├─ The test that proves it
+  ├─ Suite green, real path tried locally
+  └─ A short report back — the main session never opens the files
   ↓
 4️⃣  SECURITY AUDIT
   /security-review
@@ -745,7 +743,6 @@ START
 5️⃣  CODE REVIEW
   /code-review
   ├─ All tests passing ✓
-  ├─ Coverage target maintained ✓
   ├─ DTO patterns followed ✓
   └─ APPROVE - Ready to merge
   ↓
@@ -775,9 +772,8 @@ START: Users reporting login failure on mobile
   Code Reviewer analyzes recent changes
   └─ Root cause: strict same-site cookie on some browsers
   ↓
-2️⃣  TEST FIRST
-  /tdd fix authentication on mobile devices
-  ├─ Write test for the failing authentication path
+2️⃣  REPRODUCE
+  Write a test for the failing authentication path
   └─ Test fails (reproduces bug)
   ↓
 3️⃣  FIX
@@ -816,7 +812,7 @@ START: UserService is 500 lines, hard to maintain
   └─ Maintain backward compatibility
   ↓
 3️⃣  REFACTOR WITH TESTS
-  /tdd refactor X into specialized services
+  Refactor X into specialized services
   ├─ Create new service
   ├─ Move responsibility
   ├─ Update tests
@@ -825,7 +821,6 @@ START: UserService is 500 lines, hard to maintain
   ↓
 4️⃣  REVIEW EACH PHASE
   /code-review
-  ├─ Coverage maintained ✓
   ├─ No behavior changes ✓
   ├─ Code complexity reduced ✓
   └─ APPROVE
@@ -851,14 +846,14 @@ claude --model sonnet
 **Building a new feature?**
 1. `/plan` describe your feature
 2. Ask Architect for system design
-3. `/tdd feature` (tests first, then implementation)
+3. Implement, code and tests together
 4. `/code-review` + `/security-review` (parallel)
 5. `/update-docs`
 6. Merge to main
 
 **Fixing a bug?**
 1. Ask Code Reviewer to analyze
-2. `/tdd bug` (reproduce with a failing test, then fix)
+2. Reproduce with a failing test, then fix
 3. `/e2e run critical-flows`
 4. `/code-review`
 5. Merge to main
@@ -871,9 +866,8 @@ claude --model sonnet
 
 **Before ANY deployment:**
 1. ✅ `/security-review`
-2. ✅ Coverage target met
-3. ✅ `/e2e run all`
-4. ✅ `/code-review` approval
+2. ✅ `/e2e run all`
+3. ✅ `/code-review` approval
 5. ✅ `/update-docs`
 
 ---
@@ -893,9 +887,6 @@ claude --model sonnet
 ### Using Commands
 
 ```bash
-# TDD workflow
-/tdd implement user registration
-
 # Code review
 /code-review
 
@@ -928,25 +919,27 @@ claude --model sonnet
 |-------|--------------|------------|---------|
 | **Architect** | System design | Planning, design decisions | Direct invocation |
 | **Planner** | Feature breakdown | Before implementation | `/plan` |
-| **TDD Test Writer** | Failing tests first (RED) | Starting any code | `/tdd` |
-| **TDD Implementer** | Make tests pass (GREEN→REFACTOR) | After the failing tests exist | `/tdd` |
+| **Implementer** | Build one task with its test | Every `/feature` task | step 2 of `/feature` |
 | **Code Reviewer** | Quality assurance | Code complete | `/code-review` |
 | **Security Reviewer** | Vulnerability detection | Before production | `/security-review` |
 | **Build Error Resolver** | Build diagnostics | Build fails | `/build-fix` |
 | **E2E Runner** | Test verification | Before releases | `/e2e` |
 | **Refactor Cleaner** | Code improvement | Code smells found | `/refactor-clean` |
 | **Doc Updater** | Documentation | After major changes | `/update-docs` |
+| **Diagram Drawer** | draw.io diagrams | A system map, flow or architecture is needed | `/diagram` |
 
 ### Skill Reference
 
 Stack skills are provided by the overlay you selected at download. The exact skills available depend on that overlay (for example a backend, frontend, or infrastructure skill). If no overlay was selected, no stack skills are present and the agents rely on stack-neutral rules and contexts.
+
+Core always ships `meeting-capture`, `prototype-scan`, `document`, `deck`, `diagram` and `brand`. `document` and `deck` produce PDFs in the organization's visual identity through Typst; `diagram` produces editable draw.io files in the same identity through the diagram-drawer agent; `brand` is the one place that identity is configured (logo, colours, name).
 
 ### Rule Enforcement
 
 | Rule | Standard | Measured By | When Checked |
 |------|----------|-------------|-------------|
 | Coding Style | Code conventions | Code Reviewer | Code Review |
-| Testing | Coverage target | CI/CD, Code Reviewer | Before commit, CI/CD |
+| Testing | Tests ship with the change | CI/CD, Code Reviewer | Before commit, CI/CD |
 | Security | No hardcoded secrets | Hooks, Security Reviewer | On every write/edit (hook), Security Review |
 | Git Workflow | Conventional commits | Code Reviewer, CI/CD | Before commit, CI/CD |
 
@@ -954,11 +947,11 @@ Stack skills are provided by the overlay you selected at download. The exact ski
 
 ## FAQ
 
-**Q: Why require a test coverage target?**
-A: A coverage target ensures critical paths are tested, reducing production bugs.
+**Q: Why no coverage target?**
+A: A percentage rewards testing plumbing. We test the boundary the user touches — integration and end-to-end — and unit-test only intricate logic.
 
-**Q: Can I skip TDD and write tests later?**
-A: No. TDD is mandatory. Tests must be written FIRST. No exceptions.
+**Q: Can I ship code and add the tests later?**
+A: No. The tests are part of the change. Write them in whichever order is fastest, but they land in the same commit.
 
 **Q: What if my build fails?**
 A: Run `/build-fix` - the Build Error Resolver agent will diagnose and suggest fixes.
@@ -992,7 +985,6 @@ Replace ad-hoc debug output with your project's logging facility.
 1. Run `/code-review` for detailed feedback
 2. Address CRITICAL and HIGH priority items first
 3. Use `/refactor-clean` to improve structure
-4. Ensure your coverage target is met
 
 ### "Build pipeline is failing"
 
@@ -1008,7 +1000,7 @@ Run `/build-fix` and follow the diagnostics:
 
 1. ✅ **Read this guide** - Understand the complete system
 2. ✅ **Review your stack overlay's skills** (if you selected one)
-3. ✅ **Start your first task** - Use `/plan` and `/tdd`
+3. ✅ **Start your first task** - Use `/feature`
 4. ✅ **Follow the workflows** - Let agents guide you
 5. ✅ **Use commands daily** - Make them automatic
 6. ✅ **Trust the hooks** - Automation protects quality
@@ -1024,8 +1016,8 @@ This toolkit is a complete self-validating development kit:
 |-----------|-------|---------|
 | **CLAUDE.md** | 1 | The development standard |
 | **Agents** | 10 | Expert guidance (each with Hook Integration) |
-| **Skills** | Overlay-provided | Deep technical reference (from the stack overlay) |
-| **Commands** | 11 | Quick workflow shortcuts |
+| **Skills** | 5 core + overlay | Meetings, prototype scans, documents, decks, brand — plus stack reference |
+| **Commands** | 16 | Quick workflow shortcuts |
 | **Rules** | 8 | Standards |
 | **Contexts** | 3 | Environment-specific rules |
 | **Hooks** | 1 universal + overlay checks + SessionStart update check | Automated safety gates |

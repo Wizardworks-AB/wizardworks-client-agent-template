@@ -1,35 +1,35 @@
-# Wizardworks Code Review Context
+# Code Review Context
 
 Mode: Pull Request review, code analysis, quality assurance
-Focus: Quality, security, maintainability, and Wizardworks standard compliance
+Focus: Quality, security, maintainability, and project standard compliance
 
 ## Behavior
 
 - **Read thoroughly first**: Examine all files and changes before commenting
 - **Prioritize by severity**: CRITICAL → HIGH → MEDIUM → LOW
 - **Suggest fixes, not just problems**: Provide concrete solutions
-- **Check architectural compliance**: Verify Controller-Service-Repository pattern
+- **Check architectural compliance**: Verify the project's layering / separation of concerns
 - **Security focus**: Look for secrets, injection risks, auth issues
-- **Test coverage**: Verify 80%+ coverage requirement met
-- **Pattern adherence**: Ensure Public ID and DTO patterns followed
+- **Tests**: Verify the change ships with tests at the right level (`rules/testing.md`)
+- **Pattern adherence**: Ensure public ID and boundary-contract (DTO) patterns are followed
 
 ## Review Checklist
 
 ### Architecture & Patterns
 
-- [ ] Controller-Service-Repository layers properly separated (no layer skipping)
-- [ ] Controllers only contain HTTP concerns
-- [ ] Services contain business logic
-- [ ] Repositories handle data access only
-- [ ] Public IDs used in API responses (never database IDs)
-- [ ] DTOs used for API contracts (entities never exposed)
-- [ ] Frontend components are small and composable (<200 lines)
+- [ ] Layers properly separated (no layer skipping)
+- [ ] Transport/handler layer only contains transport concerns
+- [ ] Business logic lives in the service layer
+- [ ] Data-access layer handles data access only
+- [ ] Public IDs used in API responses (never internal/database IDs)
+- [ ] Boundary contracts (DTOs) used for API contracts (internal models never exposed)
+- [ ] Frontend components are small and composable
 
 ### Code Quality
 
 - [ ] Logic is correct and handles edge cases
-- [ ] Methods under size limits: <50 lines (.NET) / <30 lines (React)
-- [ ] Files under size limits: <800 lines (.NET) / <400 lines (TypeScript)
+- [ ] Methods/functions under the project's size limits
+- [ ] Files under the project's size limits
 - [ ] Early returns used to reduce nesting (max 4 levels)
 - [ ] No duplicated code - extract to shared functions
 - [ ] Naming is clear and descriptive
@@ -49,7 +49,6 @@ Focus: Quality, security, maintainability, and Wizardworks standard compliance
 - [ ] Unit tests present for public methods/functions
 - [ ] Integration tests for API endpoints
 - [ ] E2E tests for critical user flows
-- [ ] 80%+ code coverage maintained
 - [ ] Edge cases covered (null, empty, boundary values, errors)
 - [ ] Mocks used for external dependencies
 - [ ] Test names are descriptive
@@ -58,52 +57,30 @@ Focus: Quality, security, maintainability, and Wizardworks standard compliance
 ### Security (CRITICAL)
 
 - [ ] No hardcoded secrets (API keys, passwords, connection strings)
-- [ ] Secrets use environment variables or Azure Key Vault
-- [ ] Parameterized queries used (EF Core auto-parameterizes)
+- [ ] Secrets sourced from a secrets manager or environment variables
+- [ ] Parameterized queries / safe query APIs used
 - [ ] Input validation on all API endpoints
-- [ ] SQL injection prevention verified
-- [ ] XSS prevention (HTML escaping or DOMPurify sanitization)
+- [ ] Injection prevention verified
+- [ ] XSS prevention (output encoding, or allow-list sanitization for raw markup)
 - [ ] Authentication/authorization on sensitive endpoints
 - [ ] Rate limiting on public endpoints
 - [ ] HTTPS enforced
 - [ ] No sensitive data in error messages
 - [ ] Dependencies scanned for vulnerabilities
 
-### .NET/C# Standards
+### Language & Stack Standards
 
-- [ ] PascalCase for classes, methods, properties
-- [ ] camelCase for parameters and local variables
-- [ ] Interfaces start with 'I'
-- [ ] Async methods end with 'Async' suffix
-- [ ] Async/await used correctly (no .Result or .Wait())
-- [ ] ConfigureAwait(false) in library code
-- [ ] Null checks with early returns
-- [ ] XML documentation on public APIs
-- [ ] File organized by feature, not type
-
-### TypeScript/React Standards
-
-- [ ] camelCase for variables and functions
-- [ ] PascalCase for components and types
-- [ ] UPPER_SNAKE_CASE for constants
-- [ ] No 'any' types (strict mode compliance)
-- [ ] Proper TypeScript types on function parameters/returns
-- [ ] Immutability patterns (spread operators, not mutations)
-- [ ] Null/undefined checks
-- [ ] Proper hook naming and usage (use prefix)
-- [ ] Component props properly typed
-- [ ] JSDoc on exported functions
+Verify code follows the naming, typing, async, immutability, documentation, and file-organization conventions documented for this project's stack (see `rules/coding-style.md` and `rules/<stack>.md`), and matches the surrounding code.
 
 ## Priority Levels
 
 ### CRITICAL (Block merge)
 
 - Security vulnerabilities (secrets, injection, auth bypass)
-- Layer architecture violations (Controller → Repository skipping Service)
-- Public IDs not used (exposing database IDs)
-- DTOs not used (exposing entities)
+- Layer architecture violations (transport calling data access, skipping business logic)
+- Public IDs not used (exposing internal/database IDs)
+- Boundary contracts not used (exposing internal models)
 - No tests (particularly security-sensitive code)
-- Coverage below 80%
 - Hardcoded secrets
 
 ### HIGH (Must fix before merge)
@@ -114,7 +91,7 @@ Focus: Quality, security, maintainability, and Wizardworks standard compliance
 - SQL injection risks
 - XSS vulnerabilities
 - Missing input validation
-- Insufficient test coverage (<80%)
+- Change ships without a test that would catch its regression
 
 ### MEDIUM (Should fix)
 
@@ -147,15 +124,15 @@ Group findings by:
 ## Security Review Focus
 
 - [ ] Search for: `hardcoded`, `password`, `key`, `secret`, `token`
-- [ ] Check: Parameterized queries (LINQ, EF, Dapper with @param)
+- [ ] Check: Parameterized queries / safe query APIs (no string-built queries)
 - [ ] Verify: Input validation on all public endpoints
-- [ ] Ensure: Auth headers on sensitive operations
-- [ ] Validate: No console.log or Debug.WriteLine with sensitive data
-- [ ] Check: Environment variables for configuration
+- [ ] Ensure: Auth checks on sensitive operations
+- [ ] Validate: No debug logging with sensitive data
+- [ ] Check: Configuration sourced from a secrets manager or environment variables
 
 ## Testing Review Focus
 
-- [ ] Coverage percentage meets 80% minimum
+- [ ] The change has a test at the boundary it touches
 - [ ] Happy path and error paths tested
 - [ ] Boundary conditions tested
 - [ ] Null/empty/invalid input tested
@@ -165,9 +142,9 @@ Group findings by:
 
 ## Architecture Review Focus
 
-- [ ] No Controller directly calling Repository
-- [ ] Service layer orchestrates business logic
-- [ ] DTOs separate API contracts from domain models
+- [ ] No transport/handler layer directly calling data access
+- [ ] Business-logic layer orchestrates the work
+- [ ] Boundary contracts (DTOs) separate API contracts from domain models
 - [ ] Public IDs used externally
 - [ ] Component dependencies properly injected
 - [ ] Components are testable units
@@ -177,14 +154,14 @@ Group findings by:
 
 | Issue | Example | Fix |
 |-------|---------|-----|
-| Layer Skipping | Controller → Repository | Route through Service layer |
-| Exposed DB ID | return magic.MagicId | Use magic.PublicMagicId |
-| Entity Exposure | [HttpPost] Create(Magic m) | Use CreateMagicDto parameter |
-| Hardcoded Secret | apiKey = "sk-..." | Use configuration/Key Vault |
-| SQL Injection | $"...WHERE Id='{id}'" | Use parameterized queries |
-| No Auth Check | [HttpDelete] Delete(id) | Add [Authorize] attribute |
-| Low Coverage | <80% | Add missing tests |
-| Oversized Method | 100+ lines | Extract helper methods |
+| Layer Skipping | transport calling data access directly | Route through the business-logic layer |
+| Exposed internal ID | returning the internal/database ID | Return the public identifier |
+| Internal model exposure | accepting/returning a domain entity at the API boundary | Use a dedicated boundary type (DTO) |
+| Hardcoded Secret | `apiKey = "sk-..."` | Source from a secrets manager / environment variables |
+| Injection | query built from interpolated user input | Use parameterized queries / safe query APIs |
+| No Auth Check | delete/admin endpoint with no access control | Add the project's authorization check |
+| Untested change | no test would fail if it regressed | Add an integration test at the boundary |
+| Oversized Method | over the project's size limit | Extract helper methods |
 
 ## Approval Criteria
 
@@ -193,7 +170,6 @@ Code is ready to merge when:
 - ✅ All CRITICAL issues resolved
 - ✅ All HIGH issues resolved
 - ✅ MEDIUM/LOW issues addressed or accepted
-- ✅ 80%+ test coverage verified
 - ✅ Architecture follows patterns
 - ✅ Security standards met
 - ✅ Code style compliant
@@ -206,5 +182,4 @@ Code is ready to merge when:
 - **rules/testing.md**: Testing standards and examples
 - **rules/security.md**: Security checklist and patterns
 - **rules/git-workflow.md**: Git and PR requirements
-- **skills/backend-patterns-dotnet/SKILL.md**: .NET patterns
-- **skills/frontend-patterns-react/SKILL.md**: React patterns
+- **rules/<stack>.md**: Stack-specific patterns and conventions

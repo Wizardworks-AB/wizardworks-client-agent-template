@@ -115,7 +115,7 @@ Tried to modify an existing migration instead of creating a new one. Wasted 20 m
 → Saved to memory: "Never modify existing migrations, always create new"
 
 ### Suggested Improvements
-1. Add async test example to TDD playbook
+1. Add async test example to rules/testing.md
 2. Document frontend-first approach in New-Feature workflow
 3. Add migration warning to CLAUDE.md
 ```

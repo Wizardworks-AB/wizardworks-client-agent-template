@@ -4,7 +4,7 @@ Guardrail hooks run automatically on every file write/edit. The wiring lives in 
 
 Native hooks wired at `SessionStart`:
 
-- **Agent Template Update Check** — when this configuration was downloaded from the Fae portal (a `fae-template.json` metadata file exists), it asks Fae whether a newer template version has been published and prints a notice. Fail-quiet: in an authoring checkout or without network it does nothing.
+- **Agent Template Update Check** — when this configuration was downloaded from the Fae portal (a `fae-template.json` metadata file exists), it asks Fae whether a newer template version has been published and prints a notice. It runs again, at most once an hour, whenever the agent uses an MCP tool (`PostToolUse` on `mcp__.*` — in practice, whenever it talks to the Fae knowledge graph), reading the version from disk at that moment, so a long session hears about a new template without a restart. Fail-quiet: in an authoring checkout or without network it does nothing.
 - **Worklog reminder** — if your last session ended with unsummarized work, prints a one-line nudge to run `/report-worklog`. Fail-quiet.
 
 See **Worklog (time reporting)** below for the full worklog hook set.
@@ -18,18 +18,18 @@ See **Worklog (time reporting)** below for the full worklog hook set.
 - **Worktree Guard** — warns once per session when source is written in the **main checkout** while HEAD is a default branch (`main`/`master`/`trunk`/`develop`). Feature work belongs in its own git worktree on a feature branch: the shared checkout is used by concurrent agent sessions, and uncommitted work there gets lost. The warning also reminds you to commit applied-but-untracked template files first — a worktree materializes only *tracked* files. It keeps its state in your repo's own `.git`, never in a shared temp directory. **Advisory only — it never blocks a write**, and because `.claude/hooks/**` is template-managed it cannot be durably switched off. Exempt: `.git/` and `node_modules/`, the agent template itself (`.claude/**`, `fae-template.json`), and documentation by extension (`.md`, `.mdx`, `.txt`, `.rst`) plus root `README`/`CHANGELOG`/`LICENSE`.
 
 ### The flow hooks — the cheap parts of `/feature`, enforced
-Four scripts share one state file in your repo's own `.git`, per session (`flow-state.js`). They enforce only what costs nothing to do and loses everything when skipped; which agents run, and when, is left to the flow.
+Four scripts share one state file in your repo's own `.git`, per session (`flow-state.js`). They enforce only what costs nothing to do and loses everything when skipped; which agent runs, and when, is left to the flow — only *that* an agent does the writing is enforced.
 
 - **`flow-mode.js`** (UserPromptSubmit) — puts the session into the flow when you type `/feature`, and out again on **`/feature-off`**.
 - **`flow-track.js`** (PostToolUse) — records what actually happened: source files written (and whether any is on the security-sensitive surface), agents spawned, `TodoWrite` called, and test runs.
-- **`flow-guard.js`** (PreToolUse on writes) — **inside `/feature`, a source file cannot be written** in the main checkout on a default branch (worktree first), or before the task list exists (`TodoWrite`). Documentation is never blocked. Outside the flow the guard is inert.
+- **`flow-guard.js`** (PreToolUse on writes and on Bash) — **inside `/feature`, a source file cannot be written** in the main checkout on a default branch (worktree first), before the task list exists (`TodoWrite`), or **by the main session**: source in the flow is written by the implementer agent, and a hook event raised inside a subagent carries `agent_type` while the main session's does not. The same rule covers shell commands that visibly edit source — `sed -i`, a script heredoc that rewrites files, `cat > file`, `git apply` — while reads, test runs, git, documentation and scratch output pass. Documentation is never blocked. Outside the flow the guard is inert.
 - **`flow-gate.js`** (Stop) — in any session, you cannot end a turn having changed source without a **code-reviewer** (or **architect**) having run, nor with a security-sensitive path changed and no **security-reviewer**; inside `/feature`, nor with source written after the last test run. Two independent loop guards: it honours `stop_hook_active`, and it blocks at most twice per session regardless. One or two extra turns, never a trap.
 
 Sensitive paths are auth, secrets/credentials, migrations, infrastructure, dependency manifests and tenant isolation — the surface list in `rules/workflow.md`. Everything fails open on error.
 
-What this does **not** enforce, because a hook cannot see it: that the acceptance criteria are *good*, that tests were written *before* code, or that a review's findings were acted on. Those remain the agent's and the reviewers' job. Known limit: a write made by a subagent may carry its own session id rather than the parent's, in which case the guard does not see it as part of the flow.
+What this does **not** enforce, because a hook cannot see it: that the acceptance criteria are *good*, that the tests are meaningful, that a review's findings were acted on, or that the main session refrains from *reading* source — a read costs context but changes nothing, so it stays a rule (`commands/feature.md`) rather than a block. Those remain the agent's and the reviewers' job. A subagent's tool calls share the parent's session id, so its writes and test runs count towards the same flow state.
 
-These are the only universal checks. Workflow disciplines that used to be phrased as "reminder hooks" — test coverage, TDD-first, security review, code review — are enforced by the rules files (`rules/testing.md`, `rules/workflow.md`, `rules/security.md`) and the agents, not by hook execution.
+These are the only universal checks. Workflow disciplines that used to be phrased as "reminder hooks" — tests, security review, code review — are enforced by the rules files (`rules/testing.md`, `rules/workflow.md`, `rules/security.md`) and the agents, not by hook execution.
 
 ## Stack overlay guardrails
 

@@ -37,6 +37,5 @@ now or a work item for `/harden`. The "For /harden" list is not fixed here.
 
 ## Related
 
-- `/tdd` to make sure tests exist before the review
 - `/harden` for the deliberate robustness pass
 - `rules/coding-style.md`, `rules/simplicity.md`

@@ -50,7 +50,7 @@ Break work into ordered tasks that respect the project's layering. A typical bac
 - Respect layer separation (plan tasks that don't skip layers)
 - Stable external identifiers (plan generation in the business-logic layer)
 - Boundary contracts (plan separate contracts for create/update/read)
-- Test-first (plan tests alongside implementation)
+- Tests with the code (plan the integration or e2e test with each task)
 - Infrastructure as Code (plan infrastructure updates)
 
 Good planning enables rapid, confident implementation.

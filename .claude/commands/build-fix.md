@@ -24,7 +24,6 @@ this job — doing the work inline silently runs it on whatever model your sessi
 /build-fix dependency restore failed          # Fix package/dependency restoration issue
 /build-fix docker build failed                # Fix Docker build problem
 /build-fix deployment failed                  # Fix infrastructure deployment
-/build-fix test coverage below threshold      # Fix coverage issues
 /build-fix migration pending                  # Fix database migration
 ```
 
@@ -78,15 +77,6 @@ Symptoms: base image not found, file not found in build context, cache issues.
 - Use multi-stage builds to keep images small and reproducible.
 - Rebuild with `--no-cache` when stale layers are suspected.
 
-### Test Coverage Failures
-
-Symptoms: coverage below the required threshold.
-
-**Fix approach**:
-- Generate the coverage report with your stack's coverage tool.
-- Identify uncovered code paths and add targeted tests.
-- Re-run to confirm the threshold is met.
-
 ### Database Migration Issues
 
 Symptoms: pending migrations, ordering conflicts, connection errors.
@@ -111,7 +101,6 @@ Ensure these pass before deployment (adapt commands to your stack):
 
 - [ ] Build succeeds without warnings
 - [ ] All tests pass
-- [ ] Test coverage meets the project threshold
 - [ ] Docker image builds and starts successfully
 - [ ] No secrets exposed in the image
 - [ ] Infrastructure-as-code templates validate
@@ -132,7 +121,6 @@ Ensure these pass before deployment (adapt commands to your stack):
 - CI/CD pipeline fails
 - Docker build errors
 - Deployment failures
-- Test coverage drops below threshold
 - Database migration issues
 - Container registry problems
 - Infrastructure deployment errors
@@ -140,7 +128,6 @@ Ensure these pass before deployment (adapt commands to your stack):
 ## Related Commands
 
 - Use `/code-review` to prevent issues
-- Use `/tdd` to ensure tests exist
 - Use `/security-review` to catch vulnerabilities
 - See `rules/testing.md` for test requirements
 - See `agents/code-reviewer.md` for review criteria

@@ -1,40 +1,39 @@
-# Wizardworks Development Context
+# Development Context
 
 Mode: Active implementation and feature development
-Focus: Building features following TDD, architectural standards, and quality gates
+Focus: Building features with tests, architectural standards, and quality gates
 
 ## Behavior
 
-- **Test-First Development**: Write tests BEFORE implementation (Red-Green-Refactor)
-- **Architectural Compliance**: Adhere to Controller-Service-Repository pattern (no layer skipping)
-- **Public ID Pattern**: Never expose database IDs - always use Public IDs in APIs
-- **DTO Pattern**: All API inputs/outputs use DTOs, never expose entities
+- **Tests ship with the code**: every change carries the tests that prove it (`rules/testing.md`)
+- **Architectural Compliance**: Respect the project's layering / separation of concerns (no layer skipping)
+- **Stable Public Identifiers**: Never expose internal/database IDs — use public IDs in APIs
+- **Boundary Contracts**: All API inputs/outputs use dedicated types (DTOs), never leak internal models
 - **Iterative Implementation**: Get it working → Get it right → Get it clean
-- **Run tests after changes**: Verify coverage stays at 80%+
+- **Run tests after changes**: the whole suite, every task
 - **Keep commits atomic**: One logical change per commit
 
 ## Priorities
 
 1. **Get it working** (tests pass, feature functions)
-2. **Get it right** (follows Wizardworks patterns and security standards)
+2. **Get it right** (follows the project's patterns and security standards)
 3. **Get it clean** (refactored, optimized, well-named)
 
 ## Development Checklist
 
-Before completing any feature:
+Before completing any feature (adapt specifics to your stack — see `rules/<stack>.md` and existing conventions):
 
-- [ ] Tests written first (TDD workflow)
-- [ ] 80%+ test coverage maintained
-- [ ] Controller-Service-Repository layers properly separated
-- [ ] Public IDs used (never database IDs)
-- [ ] DTOs used for API contracts
-- [ ] No hardcoded secrets (use environment variables or Key Vault)
+- [ ] Tests written for the change
+- [ ] Layers properly separated (no skipping)
+- [ ] Public IDs used (never internal/database IDs)
+- [ ] Boundary contracts (DTOs) used for API contracts
+- [ ] No hardcoded secrets (use a secrets manager or environment variables)
 - [ ] Input validation on all API endpoints
-- [ ] Code follows Wizardworks style guide
-- [ ] Methods < 50 lines (.NET) / < 30 lines (React)
-- [ ] Files < 800 lines (.NET) / < 400 lines (TypeScript)
-- [ ] No console.log in production
-- [ ] Async/await used correctly (no .Result blocking)
+- [ ] Code follows the project style guide
+- [ ] Methods/functions within the project's size limits
+- [ ] Files within the project's size limits
+- [ ] No debug logging left in production code
+- [ ] Async patterns used correctly (no blocking on async calls)
 - [ ] Early returns to reduce nesting
 - [ ] Error handling with proper logging
 
@@ -44,87 +43,70 @@ Before completing any feature:
 - **Bash**: Running tests, builds, and linters
 - **Grep, Glob**: Finding code patterns and references
 - **Read**: Understanding existing codebase before implementing
-- **Skill**: Use `/tdd` to guide test-first development
 
-## Wizardworks Standards to Reference
+## Standards to Reference
 
 ### Core Patterns
 
-- **Controller-Service-Repository**: HTTP → Business Logic → Data Access (mandatory)
-- **Public ID Pattern**: Always expose `PublicMagicId`, never `MagicId`
-- **DTO Pattern**: Separate DTOs for API contracts, map from entities
-- **Component Composition** (Frontend): Build from small, focused components
+- **Layered architecture**: transport → business logic → data access (no layer skipping)
+- **Public ID pattern**: always expose a public identifier, never the internal/database ID
+- **Boundary contracts (DTOs)**: separate types for API contracts, mapped from internal models
+- **Component composition** (frontend): build from small, focused components
 
 ### Testing Requirements
 
-- **Unit Tests**: Test individual methods/functions
-- **Integration Tests**: Test API endpoints and database operations
-- **E2E Tests**: Test critical user flows
-- **Coverage**: Minimum 80% (lines, functions, branches, statements)
-- **Frameworks**: xUnit + FluentAssertions (.NET), Vitest + React Testing Library (React)
+- **Integration tests**: the default — endpoints, data access, handlers across a real boundary
+- **E2E tests**: critical user flows
+- **Unit tests**: only where the logic is intricate
+- **Frameworks**: use the project's chosen test frameworks
 
 ### Security Standards
 
-- **Secrets**: Never hardcode - use environment variables or Azure Key Vault
-- **SQL Injection**: Always use parameterized queries (EF Core handles this)
-- **XSS Prevention**: React escapes by default, use DOMPurify if dangerouslySetInnerHTML needed
-- **Input Validation**: Validate all user inputs at API boundaries
-- **Authentication**: JWT with proper validation, authorization policies on sensitive endpoints
+- **Secrets**: never hardcode — use a secrets manager or environment variables
+- **Injection**: always use parameterized queries / safe query APIs
+- **XSS prevention**: rely on framework output encoding; sanitize (allow-list) only when raw markup is unavoidable
+- **Input validation**: validate all user inputs at API boundaries
+- **Authentication**: proper token validation and authorization checks on sensitive endpoints
 
 ### Coding Style
 
-**.NET/C#**:
-- PascalCase: classes, methods, properties, interfaces (start with I)
-- camelCase: parameters, local variables
-- Async methods: end with Async suffix
-- Early returns to reduce nesting
-- One class per file, organize by feature not type
-
-**TypeScript/React**:
-- camelCase: variables, functions
-- PascalCase: components, types, classes
-- UPPER_SNAKE_CASE: constants
-- Immutability: use spread operators, never mutate
-- No 'any' types - strict mode required
+Follow the naming, immutability, and typing conventions documented for your stack in `rules/coding-style.md` and `rules/<stack>.md`, and match the surrounding code.
 
 ## Git Workflow
 
 - **Commit Format**: `<type>: <description>` (feat, fix, refactor, test, chore)
-- **Branch Naming**: `feature/add-magic-search`, `fix/null-reference`, `refactor/extract-dto`
-- **Pre-Commit**: Build passes, tests pass, 80%+ coverage, no secrets, linter passes
+- **Branch Naming**: `feature/add-search`, `fix/null-reference`, `refactor/extract-boundary-types`
+- **Pre-Commit**: build passes, tests pass, no secrets, linter passes
 
 ## Common Development Tasks
 
 ### Starting a New Feature
 
-1. Use `/tdd [feature-name]` to start TDD workflow
-2. Write failing test first (defines requirements)
-3. Implement minimal code to pass test
-4. Refactor for quality
-5. Verify 80%+ coverage
+1. Use `/feature [feature-name]` — worktree, acceptance criteria, task list
+2. Implement task by task, each with the test that proves it
+3. Run the suite and try the real path locally
+4. One review round, then a draft PR
 
 ### Implementing a New Endpoint
 
-1. Create DTO(s) for input/output (never expose entities)
-2. Create controller action with validation
-3. Implement service method with business logic
-4. Implement repository method for data access
+1. Create boundary type(s) for input/output (never expose internal models)
+2. Create the endpoint/handler with validation
+3. Implement the service method with business logic
+4. Implement the data-access method
 5. Write tests for all layers (mocking dependencies)
-6. Verify Public ID is used, never internal database ID
+6. Verify a public ID is used, never the internal/database ID
 
 ### Refactoring Existing Code
 
 1. Verify all tests pass before refactoring
 2. Make small, incremental changes
 3. Run tests after each change
-4. Maintain 80%+ coverage
-5. Use atomic commits
+4. Use atomic commits
 
 ## Helpful References
 
 - **CONSTITUTION.md**: Core standards and principles
 - **rules/coding-style.md**: Detailed style guidelines
-- **rules/testing.md**: TDD requirements and examples
+- **rules/testing.md**: Testing requirements and examples
 - **rules/security.md**: Security checklist and patterns
-- **skills/backend-patterns-dotnet/SKILL.md**: .NET specific patterns
-- **skills/frontend-patterns-react/SKILL.md**: React specific patterns
+- **rules/<stack>.md**: Stack-specific patterns and conventions

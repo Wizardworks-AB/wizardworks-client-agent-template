@@ -1,4 +1,4 @@
-# Wizardworks Research Context
+# Research Context
 
 Mode: Exploration, investigation, discovery, and learning
 Focus: Understanding before acting - deep analysis and comprehensive findings
@@ -27,7 +27,7 @@ Focus: Understanding before acting - deep analysis and comprehensive findings
 
 - [ ] Question fully understood
 - [ ] Relevant files identified and read
-- [ ] Wizardworks patterns researched
+- [ ] Project patterns and conventions researched
 - [ ] Related code traced across codebase
 - [ ] Multiple perspectives examined
 - [ ] Evidence collected and documented
@@ -39,9 +39,9 @@ Focus: Understanding before acting - deep analysis and comprehensive findings
 
 ### Architecture & Patterns
 
-- How are layers separated (Controller-Service-Repository)?
-- Where are Public IDs used vs database IDs?
-- How are DTOs structured and mapped?
+- How are layers separated (transport / business logic / data access)?
+- Where are public IDs used vs internal/database IDs?
+- How are boundary contracts (DTOs) structured and mapped?
 - What composition patterns are used?
 - How is dependency injection implemented?
 
@@ -116,18 +116,18 @@ Focus: Understanding before acting - deep analysis and comprehensive findings
 
 ### Investigating a Feature Implementation
 
-1. Find all files related to feature (Controllers, Services, Repositories, DTOs)
+1. Find all files related to the feature across every layer (transport, business logic, data access, boundary types)
 2. Trace how data flows through layers
 3. Check test coverage for the feature
-4. Verify Public ID and DTO patterns used
+4. Verify public ID and boundary-contract patterns are used
 5. Review security validation
 6. Assess code quality and complexity
 7. Document findings with recommendations
 
 ### Investigating Architecture Violations
 
-1. Search for layer-skipping patterns (Controller→Repository)
-2. Find instances where entities are exposed in APIs
+1. Search for layer-skipping patterns (transport calling data access directly)
+2. Find instances where internal models are exposed in APIs
 3. Identify code that doesn't follow patterns
 4. Trace impact of violations
 5. Document scope of issue
@@ -153,7 +153,7 @@ Focus: Understanding before acting - deep analysis and comprehensive findings
 
 ### Investigating Code Quality
 
-1. Find oversized methods (>50 lines .NET, >30 lines React)
+1. Find oversized methods/functions (over the project's size limits)
 2. Identify duplicated code
 3. Check naming consistency
 4. Review error handling patterns
@@ -181,13 +181,13 @@ Focus: Understanding before acting - deep analysis and comprehensive findings
 - ❌ Confuse correlation with causation
 - ❌ Forget to reference findings with file/line numbers
 
-## Wizardworks Research Context
+## Project Research Context
 
 ### Standards to Research
 
 - **CONSTITUTION.md**: Core principles and enforcement
-- **Architectural Patterns**: Controller-Service-Repository, Public ID, DTO
-- **Testing Standards**: TDD workflow, 80% coverage, test types
+- **Architectural Patterns**: layering, public IDs, boundary contracts (DTOs)
+- **Testing Standards**: which test level applies where
 - **Security Standards**: Secret management, validation, authentication
 - **Code Style**: Naming, file sizes, method complexity, immutability
 
@@ -246,6 +246,4 @@ Code snippet with context
 - **rules/testing.md**: Testing requirements and patterns
 - **rules/security.md**: Security practices and standards
 - **rules/git-workflow.md**: Version control patterns
-- **skills/backend-patterns-dotnet/SKILL.md**: .NET architecture and patterns
-- **skills/frontend-patterns-react/SKILL.md**: React patterns and best practices
-- **skills/infrastructure-as-code/SKILL.md**: Infrastructure and deployment patterns
+- **rules/<stack>.md**: Stack-specific architecture, patterns, and deployment conventions
