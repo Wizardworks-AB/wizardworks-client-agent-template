@@ -1,11 +1,16 @@
-# [CUSTOMER_NAME] — Client Agent (Maintenance)
+# {{ORGANIZATION_NAME}} — Client Agent (Maintenance)
+
+> Placeholders like `{{PROJECT_NAME}}` are filled in by Fae when you download
+> this template with a project selected. Anything marked `[FILL IN]` you
+> complete yourself.
 
 ## Project
 
-- **Customer:** [CUSTOMER_NAME]
-- **Domain:** [DOMAIN_DESCRIPTION]
-- **Code repository:** ~/code/[PROJECT_NAME]/
-- **Tech stack:** [TECH_STACK]
+- **Customer:** {{ORGANIZATION_NAME}}
+- **Project:** {{PROJECT_DISPLAY_NAME}} (`{{PROJECT_NAME}}`)
+- **Domain:** [FILL IN: what the product/system does, in two sentences]
+- **Code repository:** [FILL IN: e.g. `~/code/<repo>/`]
+- **Tech stack:** [FILL IN: the customer’s actual stack]
 
 ## Project-Specific Notes
 
@@ -50,7 +55,7 @@ Classify incoming issues:
 
 ### Bug Fix Workflow
 
-**1. Reproduce** — `/tdd` write a test that reproduces the bug. It should fail now and pass after the fix.
+**1. Reproduce** — write a test that reproduces the bug. It should fail now and pass after the fix.
 
 **2. Fix** — Minimal changes only.
 - No "while I'm here" improvements
@@ -76,17 +81,23 @@ For projects with monitoring access:
 | Scope | Full feature lifecycle | Bug fixes, patches |
 | Planning | Extensive (`/plan`) | Minimal (triage) |
 | Changes | Large, architectural | Small, surgical |
-| Testing | Full TDD cycle | Reproduce → Fix → Verify |
+| Testing | Tests with the code | Reproduce → Fix → Verify |
 | Cycle time | Days/weeks | Hours/days |
 | Risk tolerance | Medium | Very low |
 
 ### Non-Negotiable
 
-- **Test first**: Always write a reproducing test before fixing
+- **Reproduce**: Always write a reproducing test with the fix
 - **Minimal changes**: Fix the bug, nothing else
 - **No regressions**: Run full test suite before shipping
 - **Security**: Same security standards as new development
 
 ## Reference
 
-All Wizardworks standards, Fae knowledge graph instructions, and workflow guides load automatically from `.claude/rules/` and `.claude/CONSTITUTION.md`.
+Engineering standards for {{ORGANIZATION_NAME}}, Fae knowledge graph instructions, and workflow guides load automatically from `.claude/rules/` and `.claude/CONSTITUTION.md`. Stack-specific rules and skills come from the stack overlay(s) selected at download and appear as `.claude/rules/<stack>.md`.
+
+## Template
+
+- Variant: `{{TEMPLATE_VARIANT}}` version `{{TEMPLATE_VERSION}}`, downloaded from Fae.
+- `fae-template.json` holds the download metadata; a session-start hook checks
+  Fae for newer template versions and tells you when to re-download.
