@@ -38,6 +38,9 @@ a choice with concrete options**.
    — see "Never stall on a human" in `commands/feature.md`, which exists for this.
 6. **Say what is irreversible.** If an option publishes, deploys, merges, pushes, deletes,
    costs money, or is otherwise hard to undo, put that in the option's description.
+7. **Keep the questions apart from the report.** One block of questions, asked with the tool
+   or the numbered list — never a question inside a paragraph of the report. The report
+   comes separately, for whoever wants to read it (`rules/writing.md`).
 
 ## How to ask
 
@@ -46,7 +49,9 @@ It allows at most four options, so with `Chat about this` reserved you have thre
 substantive ones; if you have more than three, you are asking more than one question, so
 split it. The tool also supplies its own free-text escape, but include the explicit
 `Chat about this` option regardless — it tells the user that discussion is a first-class
-answer rather than a fallback.
+answer rather than a fallback. The **ask gate** (`rules/hooks.md`) refuses to end a turn whose
+own text asks the user something without an `AskUserQuestion` call — at most twice per
+session, never a trap.
 
 **On runtimes without that tool** (Codex, generic), write a numbered list in your reply,
 ending with the same `Chat about this` option, and stop for the answer.

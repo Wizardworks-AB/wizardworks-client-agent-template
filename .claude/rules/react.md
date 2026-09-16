@@ -56,3 +56,10 @@ language-agnostic `rules/coding-style.md`, `rules/testing.md`, and
 - No stray `console.log` in committed code — use a logging utility.
 - Escape by default (React does this); only `dangerouslySetInnerHTML` with
   sanitized input.
+
+## Local config that follows you into a worktree
+
+These gitignored files are copied from the main checkout when a worktree is created
+(`rules/git-workflow.md`), on top of `.env`, `.env.local` and `.env.*.local`:
+`.env.development.local`, `.env.test.local`, `.env.production.local`. Add
+project-specific ones in `.claude/local-config.json`.

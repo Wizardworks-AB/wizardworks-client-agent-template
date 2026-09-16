@@ -39,7 +39,7 @@ Never send the document anywhere. Handing it to a customer is the user's call.
 
 - **Title is a name, not a sentence** — two to five words in the masthead; the subtitle says what kind of document it is and for whom.
 - **Summary first, in the reader's words**: what we propose, what it costs, what they get, what happens next. Under 120 words, on the gradient box.
-- **One idea per section**, `=` headings that state the idea ("The review", "What you get", "Next step"). `==` for the parts of a section. Never `===` in a document under ten pages.
+- **One idea per section**, `=` headings that state the idea ("Every web order is typed twice", "Two deliverables in six weeks" — not "Background", "Findings"). The two closing sections keep their fixed names, *Next step* and *About / contact*, so the reader finds them. `==` for the parts of a section. Never `===` in a document under ten pages.
 - **Bullets carry a bold lead-in**: `- *The stock figure lags.* WMS and shop disagree…`. Numbered lists for sequences only.
 - **Tables for comparisons and deliverables** — at most four columns, header row states the question each column answers. Cells that need bold or a badge are written as content `[...]`, not strings.
 - **One highlight per document**: the price, the total or the ask goes in `estimate-total`. Not twice.
@@ -62,19 +62,19 @@ Never send the document anywhere. Handing it to a customer is the user's call.
     to: "Ops leadership, Customer AB",
   ),
   lang: "en",                         // "sv" for Swedish labels and hyphenation
-  toc: ("The challenge", "The review", "Pricing", "Next step"),   // optional
+  toc: ("Every web order is typed twice", "Next step"),   // optional — the `=` headings, in order
   summary: [ *Summary.* What we propose, what it costs, what you get, what happens next. ],
   // summary-break: true,   // summary on its own page (after the contents box)
   // body-break: true,      // first section on a new page
   // section-breaks: true,  // every = heading starts a new page
 )
 
-= The challenge
+= Every web order is typed twice
 Body text. A paragraph is three to five sentences.
 
 - *Re-keying is the norm.* Every web order is typed twice.
 
-== What you get
+== Two deliverables in six weeks
 #report-table(
   ("Deliverable", "Content"),
   (

@@ -64,13 +64,13 @@ Generate a brief documentation entry:
 ```markdown
 # [Feature/Change Name]
 
-## Vad
+## What
 [1-2 sentences: what does this change do?]
 
-## Hur
+## How
 [Brief technical description]
 
-## Filer
+## Files
 [List of key files changed]
 ```
 

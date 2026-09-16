@@ -46,9 +46,10 @@ Then:
 
 - **CRITICAL** — exploitable now: a secret in code, an injection path, an authorization
   bypass, a cross-tenant read. Fix immediately in a worktree, test, `/code-review`, draft PR.
-- **HIGH / MEDIUM** — drafted as work items (title, description, severity, parent) and
-  presented as a choice with options (`rules/asking-the-user.md`). Created only after
-  approval. Nothing else is changed in this run.
+- **HIGH / MEDIUM** — drafted as work items in the shape `commands/feature.md` step 4 gives
+  (an outcome for a title, why now and what is in and out, GIVEN / WHEN / THEN criteria), plus
+  severity and parent, and presented as a choice with options (`rules/asking-the-user.md`).
+  Created only after approval. Nothing else is changed in this run.
 
 Record decisions (`decide`), gotchas, and a summary of the run in the knowledge graph
 (`rules/fae.md`). Never put a secret in a finding or a node — reference where it lives.

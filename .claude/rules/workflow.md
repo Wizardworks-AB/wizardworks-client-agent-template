@@ -69,8 +69,9 @@ what is deferred and on what — rather than looping.
 
 On Claude Code, hooks enforce the cheap, observable parts (`rules/hooks.md`): inside `/feature`
 no source write outside a worktree, before the task list exists, or from the main session
-rather than a subagent; and in any session no ending a turn with unreviewed code, or with a
-sensitive path changed and no security review.
+rather than a subagent; and in any session no ending a turn with unreviewed code, with a
+sensitive path changed and no security review, or with a question to the user written into
+prose instead of asked as a choice with options.
 
 ## Quick bug fix
 

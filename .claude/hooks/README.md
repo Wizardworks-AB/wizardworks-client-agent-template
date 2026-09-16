@@ -15,6 +15,7 @@ Nothing to install — the wiring ships in this template's `.claude/settings.jso
 | `PostToolUse` (any `mcp__.*` tool) | `check-template-update.js graph-call` — the same check, at most once an hour, whenever the agent talks to Fae; the notice comes back as `additionalContext` |
 | `PreToolUse` (Write/Edit) | `dispatch.js pre` scans the PENDING content for hardcoded secrets and **blocks the write** (exit 2) on a critical hit — the secret never lands on disk |
 | `PostToolUse` (Write/Edit) | `dispatch.js post` runs the applicable checks and feeds any findings back to the agent (exit 2) so it fixes them immediately |
+| `Stop` | `flow-gate.js` refuses to end a turn with unreviewed source, and `ask-gate.js` refuses to end a turn that asks the user a question in prose instead of as a choice with options — each at most twice per session (`rules/hooks.md`) |
 
 `hooks.json` documents the universal ruleset; `scripts/dispatch.js` executes it
 using the native Claude Code hook contract. The dispatcher fails open: a broken

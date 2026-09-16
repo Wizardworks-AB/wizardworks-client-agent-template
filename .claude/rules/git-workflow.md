@@ -88,13 +88,31 @@ lost when another session stashes or switches branches.
 
 ```bash
 git worktree add ../<repo>-<feature-slug> -b feature/<feature-slug> main
+node .claude/hooks/scripts/worktree-local-config.js ../<repo>-<feature-slug>
 ```
 
 **Commit any applied-but-untracked agent template files first.** A worktree materializes
 only *tracked* files, so an "applied but uncommitted" template (rules, hooks, commands,
 `fae-template.json`) silently disappears in the new worktree and the session there loses
-its guardrails. Gitignored files — `.claude/settings.local.json`, `.env` and friends — do
-not materialize either, so re-approve the permission scope in the new worktree.
+its guardrails.
+
+**Local config comes along.** Gitignored files do not materialize either, and without them
+the app cannot start in the worktree. The second command copies a documented set of them
+from the main checkout — only files git already ignores, never added to git, existing files
+left alone:
+
+| Source | Files |
+|--------|-------|
+| always | `.claude/settings.local.json`, `.env`, `.env.local`, `.env.*.local` |
+| **dotnet** overlay | `appsettings.Development.json`, `appsettings.Local.json`, `appsettings.*.local.json` |
+| **react** overlay | `.env.development.local`, `.env.test.local`, `.env.production.local` |
+| **azure** overlay | `local.settings.json`, `*.local.bicepparam`, `local.parameters.json` |
+| your project | `.claude/local-config.json` — `{ "include": ["…"], "exclude": ["…"] }` |
+
+Patterns work like `.gitignore`: a name without `/` matches at any depth, `*` stays within a
+segment, `**` crosses directories. On a runtime without the script (Codex, generic), copy the
+same files by hand. Re-approve the agent's permission scope in the new worktree if your
+runtime asks.
 
 Remove it with `git worktree remove` once the work is merged or abandoned.
 

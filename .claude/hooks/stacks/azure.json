@@ -1,0 +1,10 @@
+{
+  "stack": "azure",
+  "description": "Azure guardrails live in rules/azure.md; this fragment only names the local config that follows a developer into a new worktree.",
+  "checks": [],
+  "localConfig": [
+    "local.settings.json",
+    "*.local.bicepparam",
+    "local.parameters.json"
+  ]
+}

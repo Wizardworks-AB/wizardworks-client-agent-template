@@ -77,11 +77,16 @@ feature ships. Full content in the node.
 
 ```bash
 git worktree add ../<repo>-<slug> -b feature/<slug> main
+node .claude/hooks/scripts/worktree-local-config.js ../<repo>-<slug>
 ```
 
 Commit any applied-but-untracked template files first — a worktree materializes only tracked
-files. Set `CLAUDE_CODE_TASK_LIST_ID` (see `rules/git-workflow.md`) or keep a task file in the
-worktree so the list survives compaction. Every agent you spawn from here on works in this
+files. The second line brings the gitignored local configuration the app needs to run
+(`.env.local`, `appsettings.Development.json`, `local.settings.json`, the agent's own
+`settings.local.json`, …) into the new worktree — the set per stack and the project's
+additions are described in `rules/git-workflow.md`; on a runtime without the script, copy those
+files by hand. Set `CLAUDE_CODE_TASK_LIST_ID` (see `rules/git-workflow.md`) or keep a task file
+in the worktree so the list survives compaction. Every agent you spawn from here on works in this
 worktree — say so in each brief.
 
 ### 1. Scope, criteria and tasks — the planner
@@ -146,6 +151,12 @@ changes if the answer differs — each as a choice with options, including the d
 items awaiting approval. Unblock what you can (through the implementer), and re-run the tests
 if anything changed.
 
+A drafted work item has one shape: the title is the outcome in production language, under
+eighty characters ("Billing tab shows an empty state when there are no invoices", not "feat:
+billing empty state"); the description says why it matters now and what is in and out; the
+acceptance criteria are three to five GIVEN / WHEN / THEN blocks. The same shape the
+`prototype-scan` skill drafts in.
+
 ### 5. Close out
 
 Commit, open a **draft** PR (what changed, why, how to test), and record the delivery fact
@@ -154,8 +165,8 @@ and any gotcha in the graph. Never merge, deploy, or create work items without a
 **Done when**: the build and tests are green, every acceptance criterion has been
 demonstrated in an implementer's report, the review round is closed, and the task list is
 empty (parked follow-ups drafted as work items). If human answers are still outstanding, stop
-and report — what shipped and against which criteria, what is deferred and on what, which
-assumptions are unconfirmed — and resume at step 4 when they arrive. Do not loop.
+and report (`rules/writing.md`) — what shipped and against which criteria, what is deferred and
+on what, which assumptions are unconfirmed — and resume at step 4 when they arrive. Do not loop.
 
 ## What the main session may do
 

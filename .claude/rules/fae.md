@@ -68,6 +68,7 @@ This is not optional. If you committed code or made a decision without saving to
 - A Stop-hook reminds you when too long has passed unsummarized; complying resets the reminder. You (or the user) can also log on demand any time with the `/report-worklog` command — do this before `/clear` or quitting so the session's tail isn't lost.
 - Do NOT route knowledge through the worklog (use `remember`/`decide`/`propose`) and do NOT write activity noise into the graph to "improve time reports" — the two streams are separate by design.
 - Known limitation: session windows are derived from your MCP traffic, so long stretches of purely local work under-count. When that happens, call `record_worklog` with explicit `startedAt`/`endedAt` for the stretch — Timekeeper flags such days as "low coverage — review" in the report's audit trail.
+- **Unattended runs are not the person's time.** When this harness runs without a person at the keyboard — a loop, a scheduled job, a CI run — its MCP connection must carry the header `X-Fae-Caller: agent`. The Claude Code template's `.mcp.json` reads it from the `FAE_CALLER` environment variable (`FAE_CALLER=agent claude -p …`); on other runtimes add the header to the connection used for such runs. That time shows on the person's "My worklog" as agent time and is never drafted into their time report. Fae's own platform agents need nothing: they carry no person and never reach the worklog.
 
 ## Relationships Between Nodes
 
@@ -79,6 +80,8 @@ You do **not** need to create relationships manually. They are created automatic
 ## Graph-First Rule
 
 Every time you create substantive content (plans, specs, analysis), store the **full content** in a graph node via `remember()`. A file reference like "see plan in X.md" is not memory — it is a broken link waiting to happen.
+
+**The title is the conclusion, not the topic.** It is what semantic search matches on and all a briefing shows. "Timekeeper drafted-hours inflation: node-timestamp sessions extend the anchor" is retrievable; "Issue #3105" or "agent" is not. This applies to every write tool. The content keeps everything — verbatim errors, ids, `file:line`, what was ruled out and why; the brevity in `rules/writing.md` is for people, and the graph has no attention budget.
 
 ## Read Tools
 
@@ -163,6 +166,7 @@ Edges carry temporal validity (`valid_from` / `valid_until`). **Default queries 
 - **ALWAYS** use `decide()` for decisions — never `remember("decision", ...)`. The `decide` tool has contradiction detection.
 - **ALWAYS** include `rationale` and `alternatives` when using `decide()`.
 - **ALWAYS** save gotchas immediately with `remember("gotcha", title, content)`.
+- **ALWAYS** title a node with its conclusion, never its topic — the title is the retrieval interface.
 - **ALWAYS** document blockers immediately with `block()` — include `urgency`.
 - **ALWAYS** search the graph with `context()` before asking the user any question about the project. The graph owns context; assume it knows before assuming it doesn't.
 - **NEVER** write secrets or personal data into the graph — no credentials, tokens, API keys, connection strings, or PII. The graph is a shared, hosted service: everything written to it is persisted, embedded and searchable by every future session. When a blocker was cleared by a credential, record that it was supplied and where it is stored (a secret-manager reference), never the value.

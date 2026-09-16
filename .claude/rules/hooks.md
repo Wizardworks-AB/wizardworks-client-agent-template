@@ -17,6 +17,8 @@ See **Worklog (time reporting)** below for the full worklog hook set.
 ### Warning (Will Tell You)
 - **Worktree Guard** — warns once per session when source is written in the **main checkout** while HEAD is a default branch (`main`/`master`/`trunk`/`develop`). Feature work belongs in its own git worktree on a feature branch: the shared checkout is used by concurrent agent sessions, and uncommitted work there gets lost. The warning also reminds you to commit applied-but-untracked template files first — a worktree materializes only *tracked* files. It keeps its state in your repo's own `.git`, never in a shared temp directory. **Advisory only — it never blocks a write**, and because `.claude/hooks/**` is template-managed it cannot be durably switched off. Exempt: `.git/` and `node_modules/`, the agent template itself (`.claude/**`, `fae-template.json`), and documentation by extension (`.md`, `.mdx`, `.txt`, `.rst`) plus root `README`/`CHANGELOG`/`LICENSE`.
 
+Beside the guard, and not a hook: **`worktree-local-config.js`** — run by `/feature` right after `git worktree add`, it copies the gitignored local configuration the app needs (the universal set, each selected stack's `localConfig` list in `hooks/stacks/<stack>.json`, and your `.claude/local-config.json`) from the main checkout into the new worktree. Only files git already ignores; nothing is ever added to git. The table in `rules/git-workflow.md` lists the set.
+
 ### The flow hooks — the cheap parts of `/feature`, enforced
 Four scripts share one state file in your repo's own `.git`, per session (`flow-state.js`). They enforce only what costs nothing to do and loses everything when skipped; which agent runs, and when, is left to the flow — only *that* an agent does the writing is enforced.
 
@@ -26,6 +28,10 @@ Four scripts share one state file in your repo's own `.git`, per session (`flow-
 - **`flow-gate.js`** (Stop) — in any session, you cannot end a turn having changed source without a **code-reviewer** (or **architect**) having run, nor with a security-sensitive path changed and no **security-reviewer**; inside `/feature`, nor with source written after the last test run. Two independent loop guards: it honours `stop_hook_active`, and it blocks at most twice per session regardless. One or two extra turns, never a trap.
 
 Sensitive paths are auth, secrets/credentials, migrations, infrastructure, dependency manifests and tenant isolation — the surface list in `rules/workflow.md`. Everything fails open on error.
+
+### The ask gate — questions as choices, enforced
+
+- **`ask-gate.js`** (Stop) — in any session, you cannot end a turn whose own text asks the user something in running prose without an **`AskUserQuestion`** call in that turn (`rules/asking-the-user.md`). It reads the ending turn from the transcript — the assistant's text since the last human message, code blocks and URLs ignored — and sends the agent back to ask as a choice with options, with the report kept apart (`rules/writing.md`). Same loop guards as the workflow gate: it honours `stop_hook_active` and blocks at most twice per session, so a rhetorical question costs one extra turn, never a trap. Fails open without a transcript or outside a git repository.
 
 What this does **not** enforce, because a hook cannot see it: that the acceptance criteria are *good*, that the tests are meaningful, that a review's findings were acted on, or that the main session refrains from *reading* source — a read costs context but changes nothing, so it stays a rule (`commands/feature.md`) rather than a block. Those remain the agent's and the reviewers' job. A subagent's tool calls share the parent's session id, so its writes and test runs count towards the same flow state.
 

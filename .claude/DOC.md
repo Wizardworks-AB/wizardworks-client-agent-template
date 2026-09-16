@@ -271,6 +271,7 @@ This means fewer mistakes make it to production - agents catch issues during dev
 ├── rules/                           # Non-negotiable standards
 │   ├── agents-and-commands.md       # Agent/command reference and parallel execution
 │   ├── asking-the-user.md           # How to ask the user anything — options, never prose
+│   ├── writing.md                   # Writing for a person — answer first, headings assert, no chronology
 │   ├── simplicity.md                # Less code is better code — build what the criteria require
 │   ├── coding-style.md              # Code style standards
 │   ├── fae.md                       # Fae knowledge graph (MCP) usage
@@ -293,6 +294,15 @@ This means fewer mistakes make it to production - agents catch issues during dev
 │   │   ├── check-worktree.js        # Universal worktree guard (warning)
 │   │   ├── check-template-update.js # Template-update check (SessionStart + hourly on MCP calls)
 │   │   ├── dispatch.js              # Hook dispatcher (wired via settings.json)
+│   │   ├── flow-mode.js             # /feature on and off (UserPromptSubmit)
+│   │   ├── flow-track.js            # Records source writes, agents, TodoWrite, test runs (PostToolUse)
+│   │   ├── flow-guard.js            # Inside /feature: source is written by the implementer, in a worktree (PreToolUse)
+│   │   ├── flow-gate.js             # Stop gate: no ending a turn with unreviewed source
+│   │   ├── ask-gate.js              # Stop gate: a question to the user is a choice with options, not prose
+│   │   ├── flow-state.js            # Shared state for the flow hooks, in the repo's own .git
+│   │   ├── worklog-nudge.js         # Stop: nudges record_worklog after long unsummarized work
+│   │   ├── worklog-track.js         # Worklog reminder bookkeeping (PostToolUse, PreCompact, SessionEnd, SessionStart)
+│   │   ├── worktree-local-config.js # Copies gitignored local config into a new worktree
 │   │   └── (check-*.js)             # Stack-overlay checks, when a stack was selected
 │   └── stacks/                      # <stack>.json check fragments (overlay-provided)
 │

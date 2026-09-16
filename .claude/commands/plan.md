@@ -20,8 +20,10 @@ build the plan costs you almost none of your own. And it carries its own model i
 whatever model your session happens to be on instead.
 
 Give the planner: the feature description, the acceptance criteria if they exist, the relevant
-stack rules, and anything the knowledge graph already knows about the area. Ask it back for an
-ordered task breakdown with dependencies, risks and complexity estimates.
+stack rules, and anything the knowledge graph already knows about the area. Ask it back for a
+plan that opens with what gets built and the decisions still open, then the acceptance
+criteria and an ordered task breakdown with dependencies, risks and complexity estimates
+(`rules/writing.md`).
 
 The one exception is a change small enough that a plan is a sentence — then you do not need
 `/plan` at all.

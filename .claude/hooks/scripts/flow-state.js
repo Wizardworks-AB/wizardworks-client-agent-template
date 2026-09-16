@@ -186,6 +186,7 @@ function freshEntry() {
     lastCode: 0, // ts of the most recent source write
     lastVerify: 0, // ts of the most recent test run
     gateBlocks: 0, // times the Stop gate has blocked this session (loop guard)
+    askBlocks: 0, // times the ask gate has blocked this session (loop guard)
     ts: Date.now(),
   };
 }

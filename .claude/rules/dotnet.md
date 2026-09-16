@@ -66,3 +66,10 @@ Repository  → data access / persistence only
 - Local dev: `dotnet user-secrets`. Deployed: your platform's secret manager
   (with the **azure** overlay, that's Azure Key Vault + managed identity — see
   `rules/azure.md`). Never hardcode; `appsettings.json` holds no secrets.
+
+## Local config that follows you into a worktree
+
+These gitignored files are copied from the main checkout when a worktree is created
+(`rules/git-workflow.md`), so the app runs there too: `appsettings.Development.json`,
+`appsettings.Local.json`, `appsettings.*.local.json`. Add project-specific ones in
+`.claude/local-config.json`.

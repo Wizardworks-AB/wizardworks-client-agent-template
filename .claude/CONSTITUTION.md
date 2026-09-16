@@ -337,6 +337,8 @@ When discovering new patterns or solving novel problems:
 | [rules/security.md](rules/security.md) | Security guidelines |
 | [rules/coding-style.md](rules/coding-style.md) | Code style standards |
 | [rules/git-workflow.md](rules/git-workflow.md) | Git and version control |
+| [rules/asking-the-user.md](rules/asking-the-user.md) | How to ask the user anything — options, never prose |
+| [rules/writing.md](rules/writing.md) | Writing for a person — answer first, headings assert, no chronology |
 
 ### Essential Commands
 

@@ -34,11 +34,9 @@ This command runs a structured retrospective on the current session, identifies 
 
 ### Step 1: Session Summary
 
-Review the conversation history and summarize:
-- Features implemented
-- Bugs fixed
-- Issues encountered
-- Time spent on different activities
+State what the session produced and what it cost, in two or three sentences — the outcome
+and the one thing that shaped it, not the sequence of events (`rules/writing.md`). The
+patterns in step 2 carry the detail.
 
 ### Step 2: Pattern Analysis
 
@@ -95,23 +93,22 @@ Recommend concrete changes:
 ## Session Retrospective
 
 ### Summary
-- Implemented user registration (3 hours)
-- Fixed 2 test failures related to async timing
-- Encountered a database migration issue, resolved by regenerating
+User registration shipped in three hours, one of which went to two mistakes the rules
+already warn about: async tests without `await`, and editing a migration instead of
+adding one.
 
 ### Patterns Identified
 
-#### Recurring: Async test timing
-Tests failed twice due to missing `await`. This is a common pattern with
-async controller tests.
+#### Async controller tests failed twice for a missing `await`
+Both failures were in tests, not in the code under test.
 → Saved to memory: "Always await async calls in controller tests"
 
-#### Successful: Frontend-first approach
-Building the form component before the API endpoint gave faster feedback.
+#### Building the form before the endpoint gave faster feedback
+Mock data in the component surfaced two field-name mismatches before the API existed.
 → Saved to memory: "Frontend mockdata first, then wire up backend"
 
-#### Wasted effort: Wrong migration approach
-Tried to modify an existing migration instead of creating a new one. Wasted 20 min.
+#### Editing an existing migration cost twenty minutes
+The edited migration had already been applied locally, so it had to be reverted and redone as a new one.
 → Saved to memory: "Never modify existing migrations, always create new"
 
 ### Suggested Improvements

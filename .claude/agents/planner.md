@@ -39,6 +39,15 @@ Break work into ordered tasks that respect the project's layering. A typical bac
 - [ ] Code reviewed
 ```
 
+## The plan as a person reads it
+
+The plan is read first by the person who decides on it, then by the agents that build it.
+Its first paragraph says what gets built, in one sentence, and which decisions are still
+open — before any analysis. Then the acceptance criteria, then the tasks in order. Keep the
+requirements and architecture sections to what changed the plan; what you examined and ruled
+out goes to the knowledge graph, not into the plan. A plan a person cannot read in two
+minutes is too long (`rules/writing.md`).
+
 ## Complexity Guide
 
 - **Low** (1-3 hours): Simple CRUD, no business logic

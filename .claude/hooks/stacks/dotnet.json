@@ -6,5 +6,10 @@
     { "script": "check-dto-usage.js", "match": "Controller" },
     { "script": "check-async-await.js", "match": "\\.cs$" },
     { "script": "check-layer-separation.js", "match": "Controller\\.cs$" }
+  ],
+  "localConfig": [
+    "appsettings.Development.json",
+    "appsettings.Local.json",
+    "appsettings.*.local.json"
   ]
 }

@@ -42,3 +42,9 @@ patterns and worked examples live in the `infrastructure-as-code` skill.
 
 - Confirm the target subscription/region before running `az` — dev and prod are
   often separate subscriptions. Set `--subscription` explicitly.
+
+## Local config that follows you into a worktree
+
+These gitignored files are copied from the main checkout when a worktree is created
+(`rules/git-workflow.md`): `local.settings.json` (Azure Functions), `*.local.bicepparam`,
+`local.parameters.json`. Add project-specific ones in `.claude/local-config.json`.

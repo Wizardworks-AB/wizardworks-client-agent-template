@@ -5,5 +5,10 @@
     { "script": "check-console-log.js", "match": "\\.(ts|tsx|js|jsx)$" },
     { "script": "check-immutability.js", "match": "\\.(ts|tsx)$" },
     { "script": "check-tanstack-query.js", "match": "components/.*\\.(tsx|ts)$" }
+  ],
+  "localConfig": [
+    ".env.development.local",
+    ".env.test.local",
+    ".env.production.local"
   ]
 }
