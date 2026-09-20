@@ -66,7 +66,7 @@ Then produce a readable transcript, `<name>.transcript.md`: one paragraph per sp
 
 Write the notes from the transcript, structured as:
 
-- **Attendees** and date
+- **Attendees**, date and start time (the time the meeting began, with timezone — the graph node is dated by it)
 - **Agenda / topics discussed** — what was actually said, not embellished
 - **Decisions** — only what was explicitly decided; undecided is undecided
 - **Action items** — with owner and deadline where stated
@@ -78,7 +78,7 @@ Stick to the transcript. Do not upgrade a suggestion into a decision or a musing
 
 This is the step that makes the meeting exist beyond this session. Per `rules/fae.md`:
 
-1. `remember("fact", "Meeting — <topic> (<date>)", <the full notes — not a file reference>)`. The result ends with `(id: <nodeId>)` — that is the **meeting node**; keep the id for the next step.
+1. `record_episode("Meeting — <topic> (<date>)", <the full notes — not a file reference>, occurredAt: <meeting start, ISO-8601 with timezone>)`. A meeting is a time-stamped event, and `occurredAt` is what dates the node: Timekeeper reports the meeting on the day it happened, not the day the notes were written. Never `remember("fact", ...)` for a meeting — a fact node is dated only by when it was written. The result ends with `(id: <nodeId>)` — that is the **meeting node**; keep the id for the next step.
 2. **Attach the full transcript to the meeting node.** The notes are a summary; the transcript is the source, and it must be reachable from the graph, not only from the user's disk. Per the *File Attachments* section of `rules/fae.md`, never paste transcript content into a tool call — request an upload URL and stream the file from the shell:
    1. `request_attachment_upload(<meetingNodeId>, "<topic>-<date>.transcript.md", "text/markdown", "Full transcript")`, then run the returned curl command with `<name>.transcript.md` as the file.
    2. `request_attachment_upload(<meetingNodeId>, "<topic>-<date>.transcription.json", "application/json", "Raw transcription (ElevenLabs, diarized)")`, then run the returned curl command with `transcription.json` as the file.

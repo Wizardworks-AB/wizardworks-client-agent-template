@@ -44,7 +44,7 @@ Existing Swedish nodes will produce worse retrieval and won't dedup against new 
 4. **After hitting a surprise/gotcha** → `remember("gotcha", title, content)`
 5. **After resolving a blocker** → `resolve(nodeId, resolution)`
 6. **After completing a significant task** → `remember("fact", "task summary", details)`
-7. **After a deploy / rollback / incident** → `record_episode(title, content, occurredAt)` — a time-stamped event, not a generic fact
+7. **After a deploy / rollback / incident / meeting** → `record_episode(title, content, occurredAt)` — a time-stamped event, not a generic fact. For a meeting, `occurredAt` is the meeting's start time: Timekeeper dates the node by it, so notes written the day after still land on the meeting day
 8. **After observing the outcome of a decision or plan** → `record_outcome(decisionOrPlanNodeId, content, direction)` where direction is `positive` or `negative`
 9. **When you are guessing, not stating a known fact** → `hypothesize(title, content, initialConfidence)` instead of `remember("fact", ...)`; later `confirm_hypothesis` / `refute_hypothesis` with evidence
 10. **When a question is raised with no answer yet** → `ask_question(question, context?)`; `answer_question` once it is resolved
@@ -138,6 +138,7 @@ Some knowledge has a dedicated tool with extra logic; `remember("fact", ...)` is
 | Instead of `remember("fact", ...)` for… | Use | Example |
 |------|-----|---------|
 | A time-stamped event | `record_episode` | "Production deploy at 14:32 UTC" → `record_episode` |
+| Meeting notes | `record_episode` with `occurredAt` = meeting start | "Meeting — Niklas/Daniel sync" written the day after → `record_episode(..., occurredAt: "2026-09-14T13:00:00+02:00")`, never `remember("fact")` |
 | A realized result of a decision/plan | `record_outcome` | "Migration caused a 3× latency increase" → `record_outcome(direction: negative)` |
 | A goal / objective | `set_goal` | "Ship multi-region by Q3" → `set_goal` |
 | A guess / unproven belief | `hypothesize` | "I think the bottleneck is the auth round-trip" → `hypothesize`, not a fact |
